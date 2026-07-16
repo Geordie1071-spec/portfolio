@@ -691,7 +691,7 @@ export default function Portfolio() {
         <div
           aria-hidden={!mobileMenuOpen}
           style={{
-            position: "fixed", inset: 14, zIndex: 500, borderRadius: 30, overflow: "hidden", background: "#0B1E6B",
+            position: "fixed", inset: 5, zIndex: 500, borderRadius: 16, overflow: "hidden", background: "#0B1E6B",
             display: "flex", flexDirection: "column", alignItems: "center",
             opacity: mobileMenuOpen ? 1 : 0,
             transform: mobileMenuOpen ? "scale(1)" : "scale(.96)",
@@ -701,7 +701,7 @@ export default function Portfolio() {
         >
           <button
             onClick={() => setMobileMenuOpen(false)} aria-label="Close menu"
-            style={{ position: "absolute", top: 18, right: 18, width: 44, height: 44, borderRadius: "50%", border: "none", background: "rgba(255,255,255,.08)", color: "#EAECFF", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+            style={{ position: "absolute", top: 28, right: 16, width: 44, height: 44, borderRadius: "50%", border: "none", background: "rgba(255,255,255,.08)", color: "#EAECFF", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
           </button>
@@ -761,7 +761,7 @@ export default function Portfolio() {
       </div>
 
       {/* deck */}
-      <div ref={deckRef} className="deck-inset" onWheel={onWheel} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} style={{ position: "fixed", inset: 14, borderRadius: 30, overflow: "hidden", zIndex: 2 }}>
+      <div ref={deckRef} className="deck-inset" onWheel={onWheel} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} style={{ position: "fixed", inset: isMobile ? 5 : 14, borderRadius: isMobile ? 16 : 30, overflow: "hidden", zIndex: 2 }}>
         <div
           aria-hidden="true"
           style={{

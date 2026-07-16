@@ -419,12 +419,21 @@ button {
 
 /* ===================== mobile ===================== */
 @media (max-width: 680px) {
+  .site-frame {
+    inset: 5px !important;
+    border-radius: 16px !important;
+  }
+  .deck-inset {
+    inset: 5px !important;
+    border-radius: 16px !important;
+  }
   .hero-role {
     top: 33% !important;
     font-size: 15px !important;
   }
   .header-row {
-    padding: 16px 30px 10px !important;
+    padding: 32px 22px 14px !important;
+    align-items: center !important;
   }
   .nav-txt {
     font-size: 13px !important;
@@ -479,11 +488,11 @@ button {
     height: clamp(56px, 9vh, 74px) !important;
   }
   .edge-tab.left {
-    left: 6px !important;
-    border-radius: 0 20px 20px 0 !important;
+    left: 5px !important;
+    border-radius: 0 16px 16px 0 !important;
   }
   .edge-tab.right {
-    right: 6px !important;
+    right: 5px !important;
     border-radius: 16px 0 0 16px !important;
   }
   .edge-tab svg {
