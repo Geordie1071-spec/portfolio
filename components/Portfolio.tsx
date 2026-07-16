@@ -523,8 +523,11 @@ export default function Portfolio() {
   });
 
   const projNavOn = scene === 1 && !detailOpen && !loading;
+  const frameInset = isMobile ? 5 : 14;
   const edgeArrowStyle = (side: "left" | "right"): CSSProperties => ({
-    transform: `translateY(-50%) translateX(${projNavOn ? "0" : side === "left" ? "-150%" : "150%"})`,
+    top: "50%",
+    ...(side === "left" ? { left: frameInset } : { right: frameInset }),
+    transform: `translateY(-50%) translateX(${projNavOn ? "0" : side === "left" ? "-120%" : "120%"})`,
     opacity: projNavOn ? 1 : 0,
     pointerEvents: projNavOn ? "auto" : "none",
     transition: "opacity .4s ease,transform .55s cubic-bezier(.5,0,.15,1)",
@@ -676,8 +679,21 @@ export default function Portfolio() {
         <ChevronIcon size={26} />
       </button>
 
-      {/* scene progress dots */}
-      <div style={{ position: "fixed", right: 30, top: "50%", transform: "translateY(-50%)", zIndex: 60, display: "flex", flexDirection: "column", gap: 14 }}>
+      {/* scene progress dots — inset so they clear the projects right arrow */}
+      <div
+        className="scene-dots"
+        style={{
+          position: "fixed",
+          right: scene === 1 ? 96 : 30,
+          top: "50%",
+          transform: "translateY(-50%)",
+          zIndex: 60,
+          display: "flex",
+          flexDirection: "column",
+          gap: 14,
+          transition: "right .35s ease",
+        }}
+      >
         {[0, 1, 2, 3].map((i) => (
           <button
             key={i} onClick={() => goScene(i)} aria-label="Go to section"
@@ -801,7 +817,7 @@ export default function Portfolio() {
 
         {/* SCENE 2 — ABOUT */}
         <section ref={(el) => { sceneEls.current[2] = el; }} data-scene="2" style={sceneStyle(2)}>
-          <AboutScene scrollRef={aboutScrollRef} />
+          <AboutScene revealed={revealed[2]} scrollRef={aboutScrollRef} />
         </section>
 
         {/* SCENE 3 — FOOTER / CONTACT */}

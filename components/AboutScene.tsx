@@ -1,66 +1,51 @@
 "use client";
 
-import { useEffect, type RefObject } from "react";
+import type { RefObject } from "react";
+import Reveal from "./Reveal";
 import { aboutMyself, aboutTechnologies } from "@/lib/about";
 
 type AboutSceneProps = {
+  revealed: boolean;
   scrollRef: RefObject<HTMLDivElement | null>;
 };
 
-export default function AboutScene({ scrollRef }: AboutSceneProps) {
-  useEffect(() => {
-    const root = scrollRef.current;
-    if (!root) return;
-
-    const items = root.querySelectorAll<HTMLElement>("[data-reveal]");
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (!entry.isIntersecting) continue;
-          const el = entry.target as HTMLElement;
-          const delay = Number(el.dataset.revealDelay || 0);
-          window.setTimeout(() => el.classList.add("is-in"), delay);
-          io.unobserve(el);
-        }
-      },
-      {
-        root,
-        threshold: 0.18,
-        rootMargin: "0px 0px -8% 0px",
-      },
-    );
-
-    items.forEach((el) => io.observe(el));
-    return () => io.disconnect();
-  }, [scrollRef]);
-
+export default function AboutScene({ revealed, scrollRef }: AboutSceneProps) {
   return (
     <div ref={scrollRef} className="about-scroll">
       <div className="about-simple">
         <section className="about-block">
-          <p className="about-kicker" data-reveal data-reveal-delay="0">
+          <Reveal revealed={revealed} className="about-kicker">
             {aboutMyself.label}
-          </p>
+          </Reveal>
           <div className="about-statement">
             {aboutMyself.lines.map((line, i) => (
-              <p
+              <Reveal
                 key={line.slice(0, 32)}
-                data-reveal
-                data-reveal-delay={80 + i * 120}
+                revealed={revealed}
+                className="about-line"
+                style={{ transitionDelay: revealed ? `${0.1 + i * 0.14}s` : "0s" }}
               >
                 {line}
-              </p>
+              </Reveal>
             ))}
           </div>
         </section>
 
         <section className="about-block about-block-tech">
-          <p className="about-kicker" data-reveal data-reveal-delay="0">
+          <Reveal
+            revealed={revealed}
+            className="about-kicker"
+            style={{ transitionDelay: revealed ? "0.55s" : "0s" }}
+          >
             {aboutTechnologies.label}
-          </p>
-          <p className="about-tech-line" data-reveal data-reveal-delay="100">
+          </Reveal>
+          <Reveal
+            revealed={revealed}
+            className="about-tech-line"
+            style={{ transitionDelay: revealed ? "0.68s" : "0s" }}
+          >
             {aboutTechnologies.items.join(" / ")}
-          </p>
+          </Reveal>
         </section>
       </div>
     </div>
