@@ -523,11 +523,8 @@ export default function Portfolio() {
   });
 
   const projNavOn = scene === 1 && !detailOpen && !loading;
-  const frameInset = isMobile ? 5 : 14;
-  const rightArrowInset = isMobile ? 3 : 10;
   const edgeArrowStyle = (side: "left" | "right"): CSSProperties => ({
     top: "50%",
-    ...(side === "left" ? { left: frameInset } : { right: rightArrowInset }),
     transform: `translateY(-50%) translateX(${projNavOn ? "0" : side === "left" ? "-120%" : "120%"})`,
     opacity: projNavOn ? 1 : 0,
     pointerEvents: projNavOn ? "auto" : "none",
