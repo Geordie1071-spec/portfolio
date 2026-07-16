@@ -207,12 +207,13 @@ export default function Portfolio() {
   const onSceneEnter = (idx: number) => {
     markRevealed(idx);
     if (idx === 2) {
-      const el = aboutScrollRef.current;
-      if (el) {
-        const down = anim.prevScene == null || anim.prevScene < 2;
-        el.scrollTop = down ? 0 : el.scrollHeight;
-      }
       anim.aboutAcc = 0;
+      requestAnimationFrame(() => {
+        const el = aboutScrollRef.current;
+        if (!el) return;
+        const down = anim.prevScene == null || anim.prevScene < 2;
+        el.scrollTop = down ? 0 : Math.max(0, el.scrollHeight - el.clientHeight);
+      });
     }
     if (idx === 3) {
       anim.skOver = 0;
@@ -857,7 +858,7 @@ export default function Portfolio() {
 
         {/* SCENE 2 — ABOUT */}
         <section ref={(el) => { sceneEls.current[2] = el; }} data-scene="2" style={sceneStyle(2)}>
-          <AboutScene revealed={revealed[2]} scrollRef={aboutScrollRef} />
+          <AboutScene active={scene === 2} scrollRef={aboutScrollRef} />
         </section>
 
         {/* SCENE 3 — SKILLS & TOOLS */}
