@@ -6,13 +6,12 @@ import Reveal from "./Reveal";
 import AboutScene from "./AboutScene";
 import { LOGO_PATHS, FOOTER_SCATTER } from "@/lib/logoPaths";
 import { projects } from "@/lib/projects";
-import { tools } from "@/lib/tools";
 
 type NavKey = "home" | "projects" | "about";
 
 const EMAIL = "geordie1071@gmail.com";
-const SCENE_COUNT = 5;
-const SCENE_ACTIVE: NavKey[] = ["home", "projects", "about", "about", "about"];
+const SCENE_COUNT = 4;
+const SCENE_ACTIVE: NavKey[] = ["home", "projects", "about", "about"];
 
 function LogoIcon({ width = 52, height = 38 }: { width?: number; height?: number }) {
   return (
@@ -41,8 +40,6 @@ type Anim = {
   wheelAcc: number; wheelDecay: ReturnType<typeof setTimeout> | undefined;
   sceneLock: boolean; lockT: ReturnType<typeof setTimeout> | undefined; prevScene: number | null;
   aboutAcc: number;
-  skTarget: number; skOver: number; skCur: number;
-  skDrag: boolean; skDragX: number; skDragStart: number;
   carDrag: boolean; carStartX: number; carX: number; carAcc: number; carMoved: boolean;
   footT: ReturnType<typeof setTimeout> | undefined;
   detailAnim: boolean;
@@ -71,7 +68,7 @@ export default function Portfolio() {
   const [projIndex, setProjIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [revealed, setRevealedState] = useState<boolean[]>([false, false, false, false, false]);
+  const [revealed, setRevealedState] = useState<boolean[]>([false, false, false, false]);
 
   // ---- refs mirroring state read inside persistent closures / the rAF loop ----
   const sceneRef = useRef(0);
@@ -103,8 +100,6 @@ export default function Portfolio() {
   const roleLRef = useRef<HTMLSpanElement | null>(null);
   const roleRRef = useRef<HTMLSpanElement | null>(null);
   const carRef = useRef<HTMLDivElement | null>(null);
-  const skillBeltRef = useRef<HTMLDivElement | null>(null);
-  const skillTrackRef = useRef<HTMLDivElement | null>(null);
   const aboutScrollRef = useRef<HTMLDivElement | null>(null);
   const footerRef = useRef<HTMLDivElement | null>(null);
   const footPathsRef = useRef<SVGPathElement[]>([]);
@@ -125,8 +120,6 @@ export default function Portfolio() {
     wheelAcc: 0, wheelDecay: undefined,
     sceneLock: false, lockT: undefined, prevScene: null,
     aboutAcc: 0,
-    skTarget: 0, skOver: 0, skCur: 0,
-    skDrag: false, skDragX: 0, skDragStart: 0,
     carDrag: false, carStartX: 0, carX: 0, carAcc: 0, carMoved: false,
     footT: undefined,
     detailAnim: false,
@@ -153,11 +146,6 @@ export default function Portfolio() {
       setHasTarget(false);
     }
   }, []);
-
-  const skillMax = () => {
-    if (!skillTrackRef.current || !skillBeltRef.current) return 0;
-    return Math.max(0, skillTrackRef.current.scrollWidth - skillBeltRef.current.clientWidth);
-  };
 
   const setFooterAssembled = (on: boolean) => {
     const paths = footPathsRef.current;
@@ -215,14 +203,7 @@ export default function Portfolio() {
         el.scrollTop = down ? 0 : Math.max(0, el.scrollHeight - el.clientHeight);
       });
     }
-    if (idx === 3) {
-      anim.skOver = 0;
-      const down = anim.prevScene == null || anim.prevScene < 3;
-      requestAnimationFrame(() => {
-        anim.skTarget = down ? 0 : skillMax();
-      });
-    }
-    setFooterAssembled(idx === 4);
+    setFooterAssembled(idx === 3);
     measure();
   };
 
@@ -240,7 +221,7 @@ export default function Portfolio() {
   };
 
   const onWheel = (e: React.WheelEvent) => {
-    if (loadingRef.current || detailOpenRef.current || anim.carDrag || anim.skDrag) return;
+    if (loadingRef.current || detailOpenRef.current || anim.carDrag) return;
     if (anim.sceneLock) return;
     const sc = sceneRef.current;
     if (sc === 2) {
@@ -260,21 +241,6 @@ export default function Portfolio() {
       }
       clearTimeout(anim.wheelDecay);
       anim.wheelDecay = setTimeout(() => { anim.aboutAcc = 0; }, 200);
-      return;
-    }
-    if (sc === 3) {
-      const max = skillMax();
-      let t = anim.skTarget + e.deltaY;
-      if (t > max) {
-        anim.skOver += t - max;
-        t = max;
-        if (anim.skOver > 220) { anim.skOver = 0; goScene(4); }
-      } else if (t < 0) {
-        anim.skOver += t;
-        t = 0;
-        if (anim.skOver < -220) { anim.skOver = 0; goScene(2); }
-      } else anim.skOver = 0;
-      anim.skTarget = t;
       return;
     }
     anim.wheelAcc += e.deltaY;
@@ -463,18 +429,6 @@ export default function Portfolio() {
         if (roleLRef.current) roleLRef.current.style.transform = `translateY(-50%) translateX(${anim.px * 14}px)`;
         if (roleRRef.current) roleRRef.current.style.transform = `translateY(-50%) translateX(${anim.px * -14}px)`;
       }
-      if (sceneRef.current === 3 && skillTrackRef.current) {
-        anim.skCur += (anim.skTarget - anim.skCur) * 0.12;
-        const vel = anim.skTarget - anim.skCur;
-        skillTrackRef.current.style.transform = `translateX(${-anim.skCur}px)`;
-        const cards = skillTrackRef.current.querySelectorAll<HTMLElement>("[data-tool]");
-        const now = performance.now() / 1000;
-        const tilt = Math.max(-9, Math.min(9, -vel * 0.05));
-        cards.forEach((card, i) => {
-          const wob = Math.sin(now * 2 + i * 0.9) * 3.2;
-          card.style.transform = `translateY(${wob}px) rotate(${tilt}deg)`;
-        });
-      }
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
@@ -542,17 +496,6 @@ export default function Portfolio() {
     else if (anim.carAcc >= th) { setProjIndex((p) => Math.max(0, p - 1)); anim.carAcc = 0; }
   };
   const carUp = () => { anim.carDrag = false; if (carRef.current) carRef.current.style.cursor = "grab"; };
-
-  // ---- skill belt drag ----
-  const skillDown = (e: React.PointerEvent) => {
-    anim.skDrag = true; anim.skDragX = e.clientX; anim.skDragStart = anim.skTarget;
-    if (skillTrackRef.current) skillTrackRef.current.style.cursor = "grabbing";
-  };
-  const skillMove = (e: React.PointerEvent) => {
-    if (!anim.skDrag) return;
-    anim.skTarget = Math.max(0, Math.min(skillMax(), anim.skDragStart - (e.clientX - anim.skDragX)));
-  };
-  const skillUp = () => { anim.skDrag = false; if (skillTrackRef.current) skillTrackRef.current.style.cursor = "grab"; };
 
   // ---- footer email pill derived values ----
   const eH = emailHover || copied;
@@ -735,7 +678,7 @@ export default function Portfolio() {
 
       {/* scene progress dots */}
       <div style={{ position: "fixed", right: 30, top: "50%", transform: "translateY(-50%)", zIndex: 60, display: "flex", flexDirection: "column", gap: 14 }}>
-        {[0, 1, 2, 3, 4].map((i) => (
+        {[0, 1, 2, 3].map((i) => (
           <button
             key={i} onClick={() => goScene(i)} aria-label="Go to section"
             style={{ width: 10, border: "none", cursor: "pointer", padding: 0, borderRadius: 999, transition: "height .4s cubic-bezier(.34,1.56,.64,1),background .3s ease", height: i === scene ? 28 : 10, background: i === scene ? "#8FE9F2" : "rgba(200,215,255,.35)" }}
@@ -861,38 +804,8 @@ export default function Portfolio() {
           <AboutScene active={scene === 2} scrollRef={aboutScrollRef} />
         </section>
 
-        {/* SCENE 3 — SKILLS & TOOLS */}
+        {/* SCENE 3 — FOOTER / CONTACT */}
         <section ref={(el) => { sceneEls.current[3] = el; }} data-scene="3" style={sceneStyle(3)}>
-          <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "clamp(22px,3.4vh,44px)", paddingTop: 70 }}>
-            <div style={{ textAlign: "center", padding: "0 24px" }}>
-              <Reveal revealed={revealed[3]} style={{ fontFamily: "'Tusker Grotesk', var(--font-heading), sans-serif", fontWeight: 400, fontSize: "clamp(30px,4.4vw,70px)", lineHeight: 1, textTransform: "uppercase", letterSpacing: "-.01em", color: "#EAECFF" }}>
-                My Stack
-              </Reveal>
-            </div>
-            <div ref={skillBeltRef} className="skill-belt" style={{ width: "100%", overflow: "hidden", padding: "24px 0" }}>
-              <div
-                ref={skillTrackRef} className="skill-track" onPointerDown={skillDown} onPointerMove={skillMove} onPointerUp={skillUp} onPointerLeave={skillUp}
-                style={{ display: "flex", alignItems: "center", gap: "clamp(20px,2.6vw,48px)", padding: "0 clamp(60px,12vw,200px) 0 clamp(40px,7vw,110px)", willChange: "transform", cursor: "grab", touchAction: "pan-y" }}
-              >
-                {tools.map((t) => (
-                  <div key={t.slug} data-tool style={{ flex: "none", willChange: "transform" }}>
-                    <div style={{ width: "clamp(230px,22vw,280px)", padding: "clamp(28px,2.4vw,40px) clamp(22px,1.8vw,30px)", display: "flex", flexDirection: "column", alignItems: "center", gap: "clamp(16px,1.6vh,24px)", textAlign: "center", background: "#fff", borderRadius: 26, boxShadow: "20px 20px 0 rgba(4,8,30,.55)" }}>
-                      <div style={{ width: "clamp(84px,8vw,104px)", height: "clamp(84px,8vw,104px)", flex: "none", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        {/* eslint-disable-next-line @next/next/no-img-element -- external icon CDN, not a Next-optimizable local asset */}
-                        <img src={`https://cdn.simpleicons.org/${t.slug}`} alt={t.name} style={{ width: "clamp(48px,4.8vw,64px)", height: "clamp(48px,4.8vw,64px)", objectFit: "contain", display: "block" }} />
-                      </div>
-                      <div style={{ fontFamily: "'Tusker Grotesk', var(--font-heading), sans-serif", fontWeight: 400, fontSize: "clamp(26px,2.6vw,40px)", lineHeight: 1, textTransform: "uppercase", color: "#12193B" }}>{t.name}</div>
-                      <div style={{ fontFamily: "var(--font-body)", fontWeight: 500, fontSize: "clamp(13px,1.1vw,16px)", lineHeight: 1.55, color: "#5A648A" }}>{t.use}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* SCENE 4 — FOOTER / CONTACT */}
-        <section ref={(el) => { sceneEls.current[4] = el; }} data-scene="4" style={sceneStyle(4)}>
           <div ref={footerRef} style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "clamp(30px,3.4vw,50px)", padding: "0 46px" }}>
             <span style={{ display: "flex", alignItems: "center", color: "#E4E9FF" }}>
               <svg style={{ width: "min(52vw,340px)", height: "auto", overflow: "visible" }} viewBox="0 0 97 70" fill="currentColor" xmlns="http://www.w3.org/2000/svg">

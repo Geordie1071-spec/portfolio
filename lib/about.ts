@@ -1,56 +1,80 @@
-export const aboutRoles = [
-  { id: "developer", label: "Developer", index: "01" },
-  { id: "ai", label: "AI Student", index: "02" },
-  { id: "designer", label: "Designer", index: "03" },
-  { id: "personal", label: "Personal", index: "04" },
-] as const;
+import { tools, type Tool } from "./tools";
 
-export type AboutRoleId = (typeof aboutRoles)[number]["id"];
-
-/** Approximate scroll progress (0–1) where each role becomes active. */
-export const aboutRoleProgress: Record<AboutRoleId, number> = {
-  developer: 0.28,
-  ai: 0.52,
-  designer: 0.76,
-  personal: 0.92,
+export const aboutIntro = {
+  label: "01 / About",
+  title: "More than just code.",
+  paragraphs: [
+    "I'm a software developer and AI student based in Malta. I build full-stack applications, backend services and data-driven products — with equal attention to how software works and how it feels to use.",
+    "I mainly work with TypeScript, React, Next.js, Go and Python, taking projects from early interface design through backend architecture and deployment.",
+  ],
 };
 
-export const aboutCopy = {
-  developer: {
-    kicker: "01 — Developer",
-    lines: [
-      "I build full-stack applications,",
-      "backend systems and interactive",
-      "digital experiences.",
-    ],
+export const capabilities = [
+  {
+    title: "Full-Stack Development",
+    body: "Responsive interfaces, APIs, authentication, databases and deployment.",
   },
-  ai: {
-    kicker: "02 — AI Student",
-    lines: [
-      "I'm studying artificial intelligence",
-      "and exploring how data, software and",
-      "machine learning work together.",
-    ],
+  {
+    title: "Backend and AI",
+    body: "Go/Python services, data processing, machine-learning integration and automation.",
   },
-  designer: {
-    kicker: "03 — Designer",
-    lines: [
-      "I care about how software feels,",
-      "not only how it works.",
-    ],
+  {
+    title: "Product and Web Design",
+    body: "Wireframes, interface systems, prototyping and interaction design.",
   },
-  personal: {
-    kicker: "Away from the screen",
-    lines: [
-      "Competitive footballer.",
-      "Regularly in the gym.",
-      "Usually designing or building something.",
-      "Based in Malta.",
-    ],
+];
+
+export type StackGroup = {
+  title: string;
+  tools: Tool[];
+};
+
+const bySlug = Object.fromEntries(tools.map((t) => [t.slug, t])) as Record<string, Tool>;
+
+export const stackGroups: StackGroup[] = [
+  {
+    title: "Languages & Frameworks",
+    tools: [bySlug.typescript, bySlug.react, bySlug.nextdotjs, bySlug.go, bySlug.python],
   },
-  summary: {
-    name: "Geordie Ellis",
-    roles: "Developer · AI Student · Designer",
-    place: "Based in Malta",
+  {
+    title: "Backend & Data",
+    tools: [bySlug.postgresql, bySlug.supabase, bySlug.docker],
   },
-} as const;
+  {
+    title: "Design & Workflow",
+    tools: [bySlug.figma, bySlug.github, bySlug.claude],
+  },
+];
+
+export const experience = [
+  {
+    period: "2026–Present",
+    title: "B.Sc. Artificial Intelligence",
+    detail: "University of Malta",
+  },
+  {
+    period: "2025–Present",
+    title: "Independent Software Developer",
+    detail: "Full-stack, backend and product-design projects",
+  },
+  {
+    period: "2024–2025",
+    title: "Independent Learning & Projects",
+    detail: "Frontend, backend and product-design practice through personal builds",
+  },
+];
+
+export const personal = {
+  title: "Away from the screen",
+  items: [
+    "Competitive footballer",
+    "Regularly in the gym",
+    "Usually designing or building something",
+    "Based in Malta",
+  ],
+  currently: [
+    "Studying artificial intelligence",
+    "Building full-stack and backend projects",
+    "Open to internships, freelance work and collaborations",
+  ],
+};
