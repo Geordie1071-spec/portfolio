@@ -524,9 +524,10 @@ export default function Portfolio() {
 
   const projNavOn = scene === 1 && !detailOpen && !loading;
   const frameInset = isMobile ? 5 : 14;
+  const rightArrowInset = isMobile ? 3 : 10;
   const edgeArrowStyle = (side: "left" | "right"): CSSProperties => ({
     top: "50%",
-    ...(side === "left" ? { left: frameInset } : { right: frameInset }),
+    ...(side === "left" ? { left: frameInset } : { right: rightArrowInset }),
     transform: `translateY(-50%) translateX(${projNavOn ? "0" : side === "left" ? "-120%" : "120%"})`,
     opacity: projNavOn ? 1 : 0,
     pointerEvents: projNavOn ? "auto" : "none",
@@ -544,9 +545,14 @@ export default function Portfolio() {
         <div className="header-row" style={{ margin: "0 auto", padding: "26px 46px 14px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 20 }}>
           {isMobile ? (
             <>
-              <span className="nav-logo" style={{ display: "flex", alignItems: "center", justifyContent: "center", color: "#DCE4FF" }}>
+              <button
+                onClick={onWork}
+                aria-label="Go to home section"
+                className="nav-logo"
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", color: "#DCE4FF", background: "none", border: "none", padding: 0, cursor: "pointer" }}
+              >
                 <LogoIcon width={52} height={38} />
-              </span>
+              </button>
               <button onClick={toggleMobileMenu} aria-label="Open menu" className="contact-btn">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
               </button>
