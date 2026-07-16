@@ -129,23 +129,212 @@ button {
 }
 
 /* ===================== about scene ===================== */
-@keyframes blink {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0;
-  }
+.about-scroll {
+  position: absolute;
+  inset: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
-.about-caret {
-  display: inline-block;
-  width: 0.5ch;
-  height: 0.82em;
-  margin-left: 0.14em;
-  vertical-align: -0.04em;
+.about-scroll::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+.about-inner {
+  width: min(1120px, 100%);
+  margin: 0 auto;
+  padding: clamp(88px, 12vh, 120px) clamp(22px, 5vw, 56px) clamp(72px, 10vh, 110px);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(56px, 9vh, 96px);
+}
+.about-me {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: clamp(28px, 4vw, 56px);
+  align-items: end;
+  min-height: min(72vh, 720px);
+}
+.about-me-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding-bottom: clamp(8px, 2vh, 28px);
+}
+.about-eyebrow {
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #8fe9f2;
+}
+.about-heading {
+  font-family: "Tusker Grotesk", var(--font-heading), sans-serif;
+  font-weight: 400;
+  font-size: clamp(34px, 5vw, 72px);
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: #eaecff;
+  margin: 0;
+}
+.about-body p,
+.about-lead {
+  margin: 0;
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-weight: 500;
+  font-size: clamp(15px, 1.35vw, 18px);
+  line-height: 1.65;
+  color: #c3cbdd;
+  max-width: 38ch;
+}
+.about-lead {
+  margin-top: 10px;
+  margin-bottom: clamp(22px, 3vh, 34px);
+  color: #9fb0e8;
+}
+.about-me-visual {
+  position: relative;
+  min-height: clamp(280px, 48vh, 560px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.about-char {
+  width: min(100%, 420px);
+  height: auto;
+  max-height: min(62vh, 620px);
+  object-fit: contain;
+  object-position: bottom center;
+  filter: drop-shadow(0 26px 55px rgba(4, 7, 26, 0.5));
+  pointer-events: none;
+  user-select: none;
+}
+.about-block {
+  display: flex;
+  flex-direction: column;
+}
+.cap-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(14px, 2vw, 22px);
+}
+.cap-card {
+  background: #fff;
+  color: #12193b;
+  border-radius: 22px;
+  padding: clamp(22px, 2.4vw, 32px);
+  box-shadow: 14px 14px 0 rgba(4, 8, 30, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 100%;
+}
+.cap-title {
+  margin: 0;
+  font-family: "Tusker Grotesk", var(--font-heading), sans-serif;
+  font-weight: 400;
+  font-size: clamp(22px, 2.2vw, 30px);
+  line-height: 1.05;
+  text-transform: uppercase;
+  color: #12193b;
+}
+.cap-body {
+  margin: 0;
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-weight: 500;
+  font-size: clamp(14px, 1.15vw, 16px);
+  line-height: 1.55;
+  color: #5a648a;
+}
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-left: 2px solid rgba(143, 233, 242, 0.35);
+}
+.timeline-item {
+  position: relative;
+  padding: 0 0 clamp(22px, 3vh, 32px) clamp(22px, 3vw, 34px);
+  display: grid;
+  gap: 6px;
+}
+.timeline-item:last-child {
+  padding-bottom: 0;
+}
+.timeline-item::before {
+  content: "";
+  position: absolute;
+  left: -7px;
+  top: 0.35em;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
   background: #8fe9f2;
-  animation: blink 1s steps(1) infinite;
+  box-shadow: 0 0 0 4px rgba(11, 30, 107, 0.85);
+}
+.timeline-period {
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8fe9f2;
+}
+.timeline-title {
+  font-family: "Tusker Grotesk", var(--font-heading), sans-serif;
+  font-weight: 400;
+  font-size: clamp(22px, 2.4vw, 34px);
+  line-height: 1.05;
+  text-transform: uppercase;
+  color: #eaecff;
+}
+.timeline-detail {
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-weight: 500;
+  font-size: clamp(14px, 1.2vw, 17px);
+  line-height: 1.5;
+  color: #c3cbdd;
+}
+.about-currently {
+  padding: clamp(28px, 3.5vw, 40px);
+  border: 1px solid rgba(150, 190, 235, 0.22);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.04);
+}
+.currently-list {
+  list-style: none;
+  margin: 18px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.currently-list li {
+  position: relative;
+  padding-left: 22px;
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-weight: 500;
+  font-size: clamp(15px, 1.35vw, 18px);
+  line-height: 1.5;
+  color: #dce4ff;
+}
+.currently-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #8fe9f2;
 }
 
 /* ===================== edge arrows + scene dots ===================== */
@@ -432,8 +621,46 @@ button {
     font-size: 15px !important;
   }
   .header-row {
-    padding: 32px 22px 14px !important;
+    padding: 36px clamp(48px, 14vw, 88px) 14px !important;
     align-items: center !important;
+  }
+  .about-inner {
+    padding: 86px 20px 64px;
+    gap: 52px;
+  }
+  .about-me {
+    grid-template-columns: 1fr;
+    min-height: 0;
+    gap: 10px;
+    align-items: start;
+  }
+  .about-me-copy {
+    order: 1;
+    padding-bottom: 0;
+    gap: 14px;
+  }
+  .about-me-visual {
+    order: 2;
+    min-height: 0;
+    max-height: 42vh;
+  }
+  .about-char {
+    width: min(72%, 280px);
+    max-height: 40vh;
+    opacity: 0.88;
+  }
+  .about-body p,
+  .about-lead {
+    max-width: none;
+  }
+  .cap-grid {
+    grid-template-columns: 1fr;
+  }
+  .cap-card {
+    box-shadow: 10px 10px 0 rgba(4, 8, 30, 0.5);
+  }
+  .about-currently {
+    padding: 24px 20px;
   }
   .nav-txt {
     font-size: 13px !important;

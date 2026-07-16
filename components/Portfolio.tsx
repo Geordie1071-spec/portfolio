@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import Lenis from "lenis";
 import Reveal from "./Reveal";
+import AboutScene from "./AboutScene";
 import { LOGO_PATHS, FOOTER_SCATTER } from "@/lib/logoPaths";
 import { projects } from "@/lib/projects";
 import { tools } from "@/lib/tools";
@@ -12,13 +13,6 @@ type NavKey = "home" | "projects" | "about";
 const EMAIL = "geordie1071@gmail.com";
 const SCENE_COUNT = 5;
 const SCENE_ACTIVE: NavKey[] = ["home", "projects", "about", "about", "about"];
-const ABOUT_LINES = [
-  "I'm Geordie Ellis — a developer and web designer.",
-  "Studying Artificial Intelligence at the University of Malta.",
-  "I build end-to-end products where engineering meets craft.",
-  "Off the clock, a lifelong footballer — teamwork in all I ship.",
-  "Open to work — let's build something.",
-];
 
 function LogoIcon({ width = 52, height = 38 }: { width?: number; height?: number }) {
   return (
@@ -46,8 +40,7 @@ type Anim = {
   cursorSeen: boolean; cursorHot: boolean; cursorDown: boolean; cursorBreak: boolean;
   wheelAcc: number; wheelDecay: ReturnType<typeof setTimeout> | undefined;
   sceneLock: boolean; lockT: ReturnType<typeof setTimeout> | undefined; prevScene: number | null;
-  aboutAcc: number; aboutLock: boolean; aboutLockT: ReturnType<typeof setTimeout> | undefined;
-  typing: boolean; typeIv: ReturnType<typeof setInterval> | undefined;
+  aboutAcc: number;
   skTarget: number; skOver: number; skCur: number;
   skDrag: boolean; skDragX: number; skDragStart: number;
   carDrag: boolean; carStartX: number; carX: number; carAcc: number; carMoved: boolean;
@@ -76,7 +69,6 @@ export default function Portfolio() {
   const [emailHover, setEmailHover] = useState(false);
   const [copied, setCopied] = useState(false);
   const [projIndex, setProjIndex] = useState(0);
-  const [aboutTyped, setAboutTyped] = useState("");
   const [isMobile, setIsMobile] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [revealed, setRevealedState] = useState<boolean[]>([false, false, false, false, false]);
@@ -86,7 +78,6 @@ export default function Portfolio() {
   const detailOpenRef = useRef(false);
   const loadingRef = useRef(true);
   const contactOpenRef = useRef(false);
-  const aboutStepRef = useRef(0);
   const isMobileRef = useRef(false);
   const activeRef = useRef<NavKey>("home");
   const hoverKeyRef = useRef<NavKey | null>(null);
@@ -114,6 +105,7 @@ export default function Portfolio() {
   const carRef = useRef<HTMLDivElement | null>(null);
   const skillBeltRef = useRef<HTMLDivElement | null>(null);
   const skillTrackRef = useRef<HTMLDivElement | null>(null);
+  const aboutScrollRef = useRef<HTMLDivElement | null>(null);
   const footerRef = useRef<HTMLDivElement | null>(null);
   const footPathsRef = useRef<SVGPathElement[]>([]);
   const overlayRef = useRef<HTMLDivElement | null>(null);
@@ -132,8 +124,7 @@ export default function Portfolio() {
     cursorSeen: false, cursorHot: false, cursorDown: false, cursorBreak: false,
     wheelAcc: 0, wheelDecay: undefined,
     sceneLock: false, lockT: undefined, prevScene: null,
-    aboutAcc: 0, aboutLock: false, aboutLockT: undefined,
-    typing: false, typeIv: undefined,
+    aboutAcc: 0,
     skTarget: 0, skOver: 0, skCur: 0,
     skDrag: false, skDragX: 0, skDragStart: 0,
     carDrag: false, carStartX: 0, carX: 0, carAcc: 0, carMoved: false,
@@ -197,21 +188,6 @@ export default function Portfolio() {
     }
   };
 
-  const typeTo = (str: string) => {
-    clearInterval(anim.typeIv);
-    let i = 0;
-    anim.typing = true;
-    setAboutTyped("");
-    anim.typeIv = setInterval(() => {
-      i++;
-      setAboutTyped(str.slice(0, i));
-      if (i >= str.length) {
-        clearInterval(anim.typeIv);
-        anim.typing = false;
-      }
-    }, 26);
-  };
-
   const initLenis = () => {
     if (lenisRef.current || !overlayRef.current || !detailContentRef.current) return;
     lenisRef.current = new Lenis({
@@ -231,10 +207,12 @@ export default function Portfolio() {
   const onSceneEnter = (idx: number) => {
     markRevealed(idx);
     if (idx === 2) {
-      const down = anim.prevScene == null || anim.prevScene < 2;
-      const start = down ? 0 : ABOUT_LINES.length - 1;
-      aboutStepRef.current = start;
-      typeTo(ABOUT_LINES[start]);
+      const el = aboutScrollRef.current;
+      if (el) {
+        const down = anim.prevScene == null || anim.prevScene < 2;
+        el.scrollTop = down ? 0 : el.scrollHeight;
+      }
+      anim.aboutAcc = 0;
     }
     if (idx === 3) {
       anim.skOver = 0;
@@ -260,28 +238,25 @@ export default function Portfolio() {
     anim.lockT = setTimeout(() => { anim.sceneLock = false; }, 1000);
   };
 
-  const aboutAdvance = (dir: number) => {
-    if (anim.aboutLock) return;
-    const nlines = ABOUT_LINES.length;
-    const nxt = aboutStepRef.current + dir;
-    if (nxt < 0) { goScene(1); return; }
-    if (nxt >= nlines) { goScene(3); return; }
-    anim.aboutLock = true;
-    clearTimeout(anim.aboutLockT);
-    anim.aboutLockT = setTimeout(() => { anim.aboutLock = false; }, 420);
-    aboutStepRef.current = nxt;
-    typeTo(ABOUT_LINES[nxt]);
-  };
-
   const onWheel = (e: React.WheelEvent) => {
     if (loadingRef.current || detailOpenRef.current || anim.carDrag || anim.skDrag) return;
     if (anim.sceneLock) return;
     const sc = sceneRef.current;
     if (sc === 2) {
-      anim.aboutAcc += e.deltaY;
-      const TH = 80;
-      if (anim.aboutAcc > TH) { anim.aboutAcc = 0; if (!anim.typing) aboutAdvance(1); }
-      else if (anim.aboutAcc < -TH) { anim.aboutAcc = 0; if (!anim.typing) aboutAdvance(-1); }
+      const el = aboutScrollRef.current;
+      if (!el) return;
+      const atTop = el.scrollTop <= 1;
+      const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 2;
+      if (e.deltaY > 0 && atBottom) {
+        anim.aboutAcc += e.deltaY;
+        if (anim.aboutAcc > 140) { anim.aboutAcc = 0; goScene(3); }
+      } else if (e.deltaY < 0 && atTop) {
+        anim.aboutAcc += e.deltaY;
+        if (anim.aboutAcc < -140) { anim.aboutAcc = 0; goScene(1); }
+      } else {
+        anim.aboutAcc = 0;
+        el.scrollTop += e.deltaY;
+      }
       clearTimeout(anim.wheelDecay);
       anim.wheelDecay = setTimeout(() => { anim.aboutAcc = 0; }, 200);
       return;
@@ -319,10 +294,19 @@ export default function Portfolio() {
     if (loadingRef.current || detailOpenRef.current) return;
     const t = e.changedTouches[0];
     const dx = t.clientX - anim.tsx, dy = t.clientY - anim.tsy;
-    if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 50) {
-      const N = SCENE_COUNT;
-      goScene((sceneRef.current + (dy < 0 ? 1 : -1) + N) % N);
+    if (Math.abs(dy) <= Math.abs(dx) || Math.abs(dy) <= 50) return;
+    const sc = sceneRef.current;
+    if (sc === 2) {
+      const el = aboutScrollRef.current;
+      if (!el) return;
+      const atTop = el.scrollTop <= 1;
+      const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 2;
+      if (dy < 0 && atBottom) goScene(3);
+      else if (dy > 0 && atTop) goScene(1);
+      return;
     }
+    const N = SCENE_COUNT;
+    goScene((sc + (dy < 0 ? 1 : -1) + N) % N);
   };
 
   const openDetail = (i: number) => {
@@ -510,9 +494,7 @@ export default function Portfolio() {
       clearTimeout(copyTimerRef.current);
       clearTimeout(anim.footT);
       clearTimeout(anim.lockT);
-      clearTimeout(anim.aboutLockT);
       clearTimeout(anim.breakT);
-      clearInterval(anim.typeIv);
       if (lenisRafRef.current) cancelAnimationFrame(lenisRafRef.current);
       lenisRef.current?.destroy();
     };
@@ -873,14 +855,9 @@ export default function Portfolio() {
           </div>
         </section>
 
-        {/* SCENE 2 — ABOUT (auto-typed) */}
+        {/* SCENE 2 — ABOUT */}
         <section ref={(el) => { sceneEls.current[2] = el; }} data-scene="2" style={sceneStyle(2)}>
-          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 8vw" }}>
-            <div style={{ maxWidth: "min(94vw,18ch)", textAlign: "center", fontFamily: "'Tusker Grotesk', var(--font-heading), sans-serif", fontWeight: 400, fontSize: "clamp(34px,5.6vw,108px)", lineHeight: 1, letterSpacing: "-.01em", color: "#EAECFF", textTransform: "uppercase", textWrap: "balance" }}>
-              {aboutTyped}
-              <span className="about-caret" />
-            </div>
-          </div>
+          <AboutScene revealed={revealed[2]} scrollRef={aboutScrollRef} />
         </section>
 
         {/* SCENE 3 — SKILLS & TOOLS */}
