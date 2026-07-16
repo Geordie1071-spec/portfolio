@@ -801,7 +801,7 @@ export default function Portfolio() {
 
         {/* SCENE 2 — ABOUT */}
         <section ref={(el) => { sceneEls.current[2] = el; }} data-scene="2" style={sceneStyle(2)}>
-          <AboutScene active={scene === 2} scrollRef={aboutScrollRef} />
+          <AboutScene scrollRef={aboutScrollRef} />
         </section>
 
         {/* SCENE 3 — FOOTER / CONTACT */}
