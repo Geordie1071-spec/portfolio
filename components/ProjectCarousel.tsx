@@ -66,6 +66,8 @@ const FRAG = /* glsl */ `
   uniform vec2 uMouse;
   uniform float uHover;
   uniform float uOpacity;
+  uniform float uSide;
+  uniform float uSideHover;
   varying vec2 vUv;
 
   float roundedBox(vec2 p, vec2 b, float r) {
@@ -77,7 +79,7 @@ const FRAG = /* glsl */ `
     vec2 uv = vUv;
     vec2 delta = uv - uMouse;
     float dist = length(delta * vec2(1.0, 0.68));
-    float bubble = exp(-dist * dist / 0.045) * uHover;
+    float bubble = exp(-dist * dist / 0.045) * uHover * (1.0 - uSide);
     uv -= delta * bubble * 0.22;
 
     vec4 tex = texture2D(uMap, uv);
@@ -87,10 +89,8 @@ const FRAG = /* glsl */ `
     float sdf = roundedBox(p, vec2(1.0), 0.085);
     if (sdf > 0.0) discard;
 
-    float border = 0.012;
-    if (sdf > -border) {
-      float k = smoothstep(0.0, -border, sdf);
-      tex.rgb = mix(vec3(1.0), tex.rgb, k);
+    if (uSide > 0.5) {
+      tex.rgb = mix(tex.rgb, vec3(1.0), uSideHover * 0.92);
     }
 
     gl_FragColor = vec4(tex.rgb, uOpacity);
@@ -141,6 +141,8 @@ function CurvedScreen({
       uMouse: { value: new THREE.Vector2(0.5, 0.5) },
       uHover: { value: 0 },
       uOpacity: { value: 1 },
+      uSide: { value: 0 },
+      uSideHover: { value: 0 },
     }),
     [texture],
   );
@@ -149,10 +151,14 @@ function CurvedScreen({
     const motion = motionRef.current;
     const off = wrapOffset(index, motion.rot, n);
     const a = off * STEP;
+    const abs = Math.abs(off);
+    const isCenter = abs < 0.45;
+    const sideScale = isCenter ? 1 : 0.86;
     if (mesh.current) {
       mesh.current.position.set(Math.sin(a) * RADIUS, 0.12, Math.cos(a) * RADIUS - RADIUS);
       mesh.current.rotation.set(0, a, 0);
-      mesh.current.visible = Math.abs(off) < 2.35;
+      mesh.current.scale.set(1, sideScale, 1);
+      mesh.current.visible = abs < 2.35;
     }
     hover.current += (hoverT.current - hover.current) * 0.14;
     const video = texture.image as HTMLVideoElement;
@@ -165,7 +171,8 @@ function CurvedScreen({
       matRef.current.uniforms.uMap.value.needsUpdate = true;
       matRef.current.uniforms.uHover.value = hover.current;
       matRef.current.uniforms.uMouse.value.copy(mouse.current);
-      const abs = Math.abs(off);
+      matRef.current.uniforms.uSide.value = isCenter ? 0 : 1;
+      matRef.current.uniforms.uSideHover.value = isCenter ? 0 : hover.current;
       matRef.current.uniforms.uOpacity.value = abs < 0.2 ? 1 : abs < 1.15 ? 0.92 : Math.max(0, 1.15 - abs * 0.38);
     }
   });
@@ -386,6 +393,9 @@ const ProjectCarousel = forwardRef<ProjectCarouselHandle, Props>(function Projec
 
   return (
     <div ref={wrapRef} className="carousel-stage">
+      <p className="carousel-hint" aria-hidden="true">
+        Drag or scroll to browse · Click side cards to switch
+      </p>
       <Canvas
         dpr={[1, dprMax]}
         gl={{ antialias: true, alpha: false, powerPreference: "high-performance" }}

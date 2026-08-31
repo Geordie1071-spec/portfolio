@@ -107,6 +107,31 @@ button {
 .carousel-stage:active {
   cursor: grabbing;
 }
+.carousel-hint {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(22px, 4.5vh, 52px);
+  transform: translateX(-50%);
+  z-index: 4;
+  margin: 0;
+  pointer-events: none;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.42);
+  white-space: nowrap;
+  animation: carousel-hint-pulse 3.2s ease-in-out infinite;
+}
+@keyframes carousel-hint-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
 .carousel-stage canvas {
   display: block;
   width: 100% !important;
@@ -121,6 +146,19 @@ button {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   scrollbar-width: none;
+}
+.stack-hint {
+  position: sticky;
+  top: clamp(72px, 14vh, 96px);
+  z-index: 2;
+  margin: 0 auto 12px;
+  width: fit-content;
+  pointer-events: none;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
 }
 .project-stack::-webkit-scrollbar {
   display: none;
@@ -137,7 +175,7 @@ button {
   position: relative;
   width: min(88vw, 360px);
   aspect-ratio: 16 / 10;
-  border: 1.5px solid rgba(255, 255, 255, 0.88);
+  border: none;
   border-radius: 14px;
   overflow: hidden;
   background: #222;
@@ -145,6 +183,18 @@ button {
   cursor: pointer;
   box-shadow: 0 22px 44px rgba(0, 0, 0, 0.38);
   transition: transform 0.35s cubic-bezier(0.22, 1, 0.32, 1), box-shadow 0.3s ease;
+}
+.project-stack-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  opacity: 0;
+  transition: opacity 0.28s ease;
+  pointer-events: none;
+}
+.project-stack-card:hover::after {
+  opacity: 0.18;
 }
 .project-stack-card:nth-child(4n + 1) {
   transform: translateX(-16px) rotate(-2.4deg);
@@ -478,12 +528,12 @@ button {
 }
 .detail-peek {
   flex: none;
-  width: clamp(18px, 2.4vw, 32px);
+  width: clamp(52px, 5.5vw, 84px);
   border: none;
   background: #333;
-  color: transparent;
+  color: #fff;
   cursor: pointer;
-  padding: 0;
+  padding: 12px 8px;
   border-radius: 18px;
   transition: width 0.3s ease, background 0.25s ease;
 }
@@ -496,8 +546,31 @@ button {
   border-radius: 8px 18px 18px 8px;
 }
 .detail-peek:hover {
-  background: #3a3a3a;
-  width: clamp(28px, 3.2vw, 44px);
+  background: #fff;
+  color: #222;
+  width: clamp(64px, 6.8vw, 96px);
+}
+.detail-peek-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 100%;
+  min-height: 120px;
+}
+.detail-peek-title {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.88;
+  max-height: min(42vh, 280px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .detail-card {
   position: relative;
@@ -538,12 +611,12 @@ button {
   z-index: 6;
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 10px;
   pointer-events: none;
 }
 .detail-progress-pill {
-  width: 36px;
-  height: 7px;
+  width: 52px;
+  height: 11px;
   border-radius: 999px;
   background: #d8d8d8;
   overflow: hidden;
@@ -629,9 +702,13 @@ button {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  gap: 18px;
-  padding: clamp(36px, 5vw, 56px) clamp(28px, 3vw, 44px) 88px;
-  overflow: hidden;
+  gap: 16px;
+  padding: clamp(36px, 5vw, 56px) clamp(28px, 3vw, 44px) 96px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.detail-left::-webkit-scrollbar {
+  display: none;
 }
 .detail-left h1 {
   margin: 0;
@@ -645,45 +722,65 @@ button {
 }
 .detail-tagline {
   margin: 0;
-  font-size: clamp(14px, 1.15vw, 16px);
+  font-size: clamp(15px, 1.2vw, 17px);
   line-height: 1.55;
+  font-weight: 600;
+  color: #222;
+  max-width: 38ch;
+}
+.detail-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.detail-overview p {
+  margin: 0;
+  font-size: clamp(13px, 1.05vw, 15px);
+  line-height: 1.65;
   font-weight: 400;
-  color: #333;
-  max-width: 34ch;
+  color: #444;
+  max-width: 42ch;
 }
 .detail-meta {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
-  margin-top: 8px;
+  gap: 10px;
+  margin-top: 4px;
 }
 .detail-link {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
+  min-height: 48px;
+  padding: 0 18px 0 14px;
+  border-radius: 999px;
   background: #111;
   color: #fff;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
   flex: none;
   transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease;
+}
+.detail-link-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 .detail-link:hover {
   color: #fff;
   background: #333;
-  transform: scale(1.08);
+  transform: scale(1.04);
 }
 .detail-pill {
   font-weight: 600;
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   background: #ececec;
   color: #222;
   border-radius: 999px;
-  padding: 8px 12px;
+  padding: 11px 16px;
 }
 .detail-trophy {
   font-size: 18px;
@@ -694,6 +791,12 @@ button {
   height: 100%;
   min-height: 0;
   scrollbar-width: none;
+  cursor: grab;
+  touch-action: pan-y;
+}
+.detail-imgs.is-dragging {
+  cursor: grabbing;
+  user-select: none;
 }
 .detail-imgs::-webkit-scrollbar {
   display: none;
@@ -952,10 +1055,22 @@ button {
   }
   .detail-peek {
     display: block;
-    width: 32px;
-    min-width: 32px;
+    width: 44px;
+    min-width: 44px;
     margin: 0;
     border-radius: 12px;
+    padding: 10px 6px;
+  }
+  .detail-peek:hover {
+    width: 48px;
+  }
+  .detail-peek-inner {
+    min-height: 88px;
+    gap: 8px;
+  }
+  .detail-peek-title {
+    font-size: 9px;
+    max-height: 120px;
   }
   .detail-peek.prev {
     margin-left: 0;
@@ -989,8 +1104,8 @@ button {
     bottom: 14px;
   }
   .detail-progress-pill {
-    width: 28px;
-    height: 6px;
+    width: 44px;
+    height: 10px;
   }
   .detail-imgs > div {
     padding: 0 14px 16px;
@@ -1009,5 +1124,8 @@ button {
   }
   .carousel-stage {
     cursor: default;
+  }
+  .carousel-hint {
+    display: none;
   }
 }

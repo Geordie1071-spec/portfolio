@@ -202,6 +202,48 @@ const ProjectDetail = forwardRef<ProjectDetailHandle, ProjectDetailProps>(functi
     applyProgress(0);
   }, [project?.title, open, applyProgress]);
 
+  useEffect(() => {
+    const wrap = imgsRef.current;
+    if (!open || !wrap) return;
+
+    let dragging = false;
+    let startY = 0;
+    let startScroll = 0;
+
+    const onDown = (e: PointerEvent) => {
+      if (e.button !== 0) return;
+      dragging = true;
+      startY = e.clientY;
+      startScroll = lenisRef.current?.animatedScroll ?? wrap.scrollTop;
+      wrap.setPointerCapture(e.pointerId);
+      wrap.classList.add("is-dragging");
+    };
+    const onMove = (e: PointerEvent) => {
+      if (!dragging) return;
+      const target = startScroll - (e.clientY - startY);
+      if (lenisRef.current) lenisRef.current.scrollTo(target, { immediate: true });
+      else wrap.scrollTop = target;
+    };
+    const onUp = (e: PointerEvent) => {
+      if (!dragging) return;
+      dragging = false;
+      wrap.classList.remove("is-dragging");
+      if (wrap.hasPointerCapture(e.pointerId)) wrap.releasePointerCapture(e.pointerId);
+    };
+
+    wrap.addEventListener("pointerdown", onDown);
+    wrap.addEventListener("pointermove", onMove);
+    wrap.addEventListener("pointerup", onUp);
+    wrap.addEventListener("pointercancel", onUp);
+    return () => {
+      wrap.removeEventListener("pointerdown", onDown);
+      wrap.removeEventListener("pointermove", onMove);
+      wrap.removeEventListener("pointerup", onUp);
+      wrap.removeEventListener("pointercancel", onUp);
+      wrap.classList.remove("is-dragging");
+    };
+  }, [open, project?.title]);
+
   const requestSwitch = useCallback(
     (dir: number) => {
       if (!openRef.current || switchingRef.current) return;
@@ -241,7 +283,14 @@ const ProjectDetail = forwardRef<ProjectDetailHandle, ProjectDetailProps>(functi
         onClick={() => requestSwitch(-1)}
         tabIndex={open ? 0 : -1}
         aria-label={`Previous project: ${prevTitle}`}
-      />
+      >
+        <span className="detail-peek-inner">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+          <span className="detail-peek-title">{prevTitle}</span>
+        </span>
+      </button>
 
       <article className={`detail-card${switchClass}${switchClass ? ` ${dirClass}` : ""}`}>
         <button className="overlay-x detail-x" onClick={handleClose} aria-label="Close project" tabIndex={open ? 0 : -1}>
@@ -254,11 +303,17 @@ const ProjectDetail = forwardRef<ProjectDetailHandle, ProjectDetailProps>(functi
             <div className="detail-left">
               <h1>{project.title}</h1>
               <p className="detail-tagline">{project.tagline}</p>
+              <div className="detail-overview">
+                {project.overview.map((para) => (
+                  <p key={para.slice(0, 24)}>{para}</p>
+                ))}
+              </div>
               <div className="detail-meta">
                 <a className="detail-link" href="#" aria-label="Open live project" tabIndex={open ? 0 : -1}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M7 17L17 7M8 7h9v9" />
                   </svg>
+                  <span className="detail-link-label">Open site</span>
                 </a>
                 <span className="detail-pill">{project.category}</span>
                 <span className="detail-pill">{project.year}</span>
@@ -296,7 +351,14 @@ const ProjectDetail = forwardRef<ProjectDetailHandle, ProjectDetailProps>(functi
         onClick={() => requestSwitch(1)}
         tabIndex={open ? 0 : -1}
         aria-label={`Next project: ${nextTitle}`}
-      />
+      >
+        <span className="detail-peek-inner">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M9 18l6-6-6-6" />
+          </svg>
+          <span className="detail-peek-title">{nextTitle}</span>
+        </span>
+      </button>
     </div>
   );
 });

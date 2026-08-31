@@ -61,6 +61,9 @@ const ProjectStack = forwardRef<ProjectStackHandle, Props>(function ProjectStack
 
   return (
     <div ref={rootRef} className={`project-stack${paused ? " is-paused" : ""}`}>
+      <p className="stack-hint" aria-hidden="true">
+        Scroll to browse · Tap to open
+      </p>
       <div className="project-stack-inner">
         {projects.map((project, index) => (
           <button
