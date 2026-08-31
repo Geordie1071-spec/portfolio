@@ -65,7 +65,7 @@ function PageFan({ pages }: { pages: ProjectPage[] }) {
             key={pg.id}
             className="detail-fan-card"
             style={{
-              transform: `translate(-50%, -50%) translateX(${off * 38}%) rotateY(${-off * 26}deg) translateZ(${-Math.abs(off) * 48}px)`,
+              transform: `translate(-50%, -50%) translateX(${off * 155}px) rotateY(${-off * 38}deg) translateZ(${-Math.abs(off) * 70}px) scale(${1 - Math.abs(off) * 0.06})`,
               zIndex: 20 - Math.abs(Math.round(off * 10)),
             }}
           >
