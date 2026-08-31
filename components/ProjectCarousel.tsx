@@ -251,7 +251,7 @@ function CurvedScreen({
         fragmentShader={FRAG}
         transparent
         toneMapped={false}
-        side={THREE.DoubleSide}
+        side={THREE.FrontSide}
       />
     </mesh>
   );
