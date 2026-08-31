@@ -30,6 +30,12 @@ export const metadata: Metadata = {
     "Portfolio of Geordie Ellis — software developer and AI product builder.",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover" as const,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{

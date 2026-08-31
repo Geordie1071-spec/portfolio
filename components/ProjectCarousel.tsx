@@ -2,6 +2,7 @@
 
 import {
   forwardRef,
+  useCallback,
   useEffect,
   useImperativeHandle,
   useMemo,
@@ -21,6 +22,7 @@ type Props = {
   projects: Project[];
   paused: boolean;
   onOpen: (index: number) => void;
+  onReady?: () => void;
 };
 
 const SCREEN_W = 4.48;
@@ -231,10 +233,17 @@ function CurvedScreen({
 
 function Rig() {
   const { size } = useThree();
+  const last = useRef({ mobile: false, z: 0 });
   useFrame(({ camera }) => {
-    const z = size.width < 680 ? 10.1 : 7.7;
-    camera.position.set(0, 0.72, z);
-    camera.lookAt(0, 0.05, 0);
+    const mobile = size.width < 680;
+    const z = mobile ? 10.8 : 7.7;
+    if (last.current.mobile !== mobile || last.current.z !== z) {
+      camera.position.set(0, mobile ? 0.58 : 0.72, z);
+      if ("fov" in camera) camera.fov = mobile ? 36 : 32;
+      camera.lookAt(0, 0.05, 0);
+      camera.updateProjectionMatrix();
+      last.current = { mobile, z };
+    }
   });
   return null;
 }
@@ -306,10 +315,11 @@ function CarouselWorld({
 }
 
 const ProjectCarousel = forwardRef<ProjectCarouselHandle, Props>(function ProjectCarousel(
-  { projects, paused, onOpen },
+  { projects, paused, onOpen, onReady },
   ref,
 ) {
   const wrapRef = useRef<HTMLDivElement>(null);
+  const readySent = useRef(false);
   const motionRef = useRef<Motion>({
     rot: 0,
     vel: 0,
@@ -319,10 +329,21 @@ const ProjectCarousel = forwardRef<ProjectCarouselHandle, Props>(function Projec
     lastX: 0,
   });
   const pausedRef = useRef(paused);
+  const coarseRef = useRef(false);
 
   useEffect(() => {
     pausedRef.current = paused;
   }, [paused]);
+
+  useEffect(() => {
+    coarseRef.current = window.matchMedia("(pointer: coarse)").matches;
+  }, []);
+
+  const notifyReady = useCallback(() => {
+    if (readySent.current) return;
+    readySent.current = true;
+    onReady?.();
+  }, [onReady]);
 
   useImperativeHandle(ref, () => ({
     step: (dir: number) => {
@@ -350,8 +371,8 @@ const ProjectCarousel = forwardRef<ProjectCarouselHandle, Props>(function Projec
       if (!motion.dragging) return;
       const dx = e.clientX - motion.lastX;
       if (Math.abs(dx) > 4) motion.moved = true;
-      motion.rot -= dx / 2800;
-      motion.vel = -dx / 2800;
+      motion.rot -= dx / (coarseRef.current ? 1900 : 2800);
+      motion.vel = -dx / (coarseRef.current ? 1900 : 2800);
       motion.lastX = e.clientX;
     };
     const onUp = () => {
@@ -387,17 +408,25 @@ const ProjectCarousel = forwardRef<ProjectCarouselHandle, Props>(function Projec
     };
   }, []);
 
+  const dprMax = useMemo(() => {
+    if (typeof window === "undefined") return 1.75;
+    return window.matchMedia("(pointer: coarse)").matches || window.innerWidth < 680 ? 1.35 : 1.75;
+  }, []);
+
   return (
     <div ref={wrapRef} className="carousel-stage">
       <Canvas
-        dpr={[1, 1.75]}
+        dpr={[1, dprMax]}
         gl={{ antialias: true, alpha: false, powerPreference: "high-performance" }}
         onCreated={({ gl }) => {
           gl.setClearColor("#222222", 1);
+          requestAnimationFrame(() => {
+            requestAnimationFrame(notifyReady);
+          });
         }}
       >
         <color attach="background" args={["#222222"]} />
-        <fog attach="fog" args={["#222222", 12, 32]} />
+        <fog attach="fog" args={["#222222", 14, 34]} />
         <PerspectiveCamera makeDefault fov={32} position={[0, 0.72, 7.7]} />
         <ambientLight intensity={0.7} />
         <Rig />
@@ -405,13 +434,13 @@ const ProjectCarousel = forwardRef<ProjectCarouselHandle, Props>(function Projec
           position={[0, -SCREEN_H / 2 - 0.45, 0]}
           args={[40, 40]}
           cellSize={0.55}
-          cellThickness={0.4}
-          cellColor="#333333"
+          cellThickness={0.72}
+          cellColor="#666666"
           sectionSize={2.75}
-          sectionThickness={0.85}
-          sectionColor="#4a4a4a"
-          fadeDistance={24}
-          fadeStrength={1.8}
+          sectionThickness={1.25}
+          sectionColor="#9a9a9a"
+          fadeDistance={30}
+          fadeStrength={1.05}
           infiniteGrid
         />
         <CarouselWorld projects={projects} paused={paused} onOpen={onOpen} motionRef={motionRef} />

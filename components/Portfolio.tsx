@@ -31,9 +31,19 @@ export default function Portfolio() {
     breakT: undefined as ReturnType<typeof setTimeout> | undefined,
   }).current;
 
+  const sceneReadyRef = useRef(false);
+
   const onLoaderDone = useCallback(() => {
     loadingRef.current = false;
     setLoading(false);
+  }, []);
+
+  const onCarouselReady = useCallback(() => {
+    sceneReadyRef.current = true;
+  }, []);
+
+  useEffect(() => {
+    void import("./ProjectCarousel");
   }, []);
 
   const closeOverlays = useCallback(() => {
@@ -164,7 +174,7 @@ export default function Portfolio() {
 
   return (
     <div style={{ minWidth: 0 }}>
-      {loading && <Loader onComplete={onLoaderDone} />}
+      {loading && <Loader onComplete={onLoaderDone} sceneReadyRef={sceneReadyRef} />}
 
       <div className={`site-frame${detailOpen ? " is-hidden" : ""}`} aria-hidden="true" />
 
@@ -183,7 +193,13 @@ export default function Portfolio() {
       </header>
 
       <div className={`deck-inset${profileOpen ? " is-dimmed" : ""}`}>
-        <ProjectCarousel ref={carouselRef} projects={projects} paused={overlayUp || loading} onOpen={openDetail} />
+        <ProjectCarousel
+          ref={carouselRef}
+          projects={projects}
+          paused={overlayUp || loading}
+          onOpen={openDetail}
+          onReady={onCarouselReady}
+        />
       </div>
 
       <ProfilePanel open={profileOpen} onClose={closeProfile} />
