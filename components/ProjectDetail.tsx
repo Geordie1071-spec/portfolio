@@ -57,6 +57,18 @@ function EmptyFrame({ cap, ph }: { cap: string; ph: string }) {
   );
 }
 
+const INFINITE_COPIES = 2;
+
+function DetailFrames({ pages, copy }: { pages: ProjectPage[]; copy: number }) {
+  return (
+    <div className="detail-imgs-cycle" data-cycle={copy}>
+      <PageFan pages={pages} />
+      {pages.map((pg) => (
+        <EmptyFrame key={`${copy}-${pg.id}`} cap={pg.cap} ph={pg.ph} />
+      ))}
+    </div>
+  );
+}
 function PageFan({ pages }: { pages: ProjectPage[] }) {
   const n = pages.length;
   const mid = (n - 1) / 2;
@@ -130,7 +142,7 @@ const ProjectDetail = forwardRef<ProjectDetailHandle, ProjectDetailProps>(functi
 
   const applyProgress = useCallback((progress: number) => {
     const n = fillRefs.current.length;
-    const p = Math.min(1, Math.max(0, progress));
+    const p = ((progress % 1) + 1) % 1;
     for (let i = 0; i < n; i++) {
       const el = fillRefs.current[i];
       if (!el) continue;
@@ -139,20 +151,37 @@ const ProjectDetail = forwardRef<ProjectDetailHandle, ProjectDetailProps>(functi
     }
   }, []);
 
+  const cycleHeightRef = useRef(1);
+
+  const measureCycle = useCallback(() => {
+    const inner = imgsInnerRef.current;
+    if (!inner) return 1;
+    const cycle = inner.querySelector(".detail-imgs-cycle") as HTMLElement | null;
+    const h = cycle?.offsetHeight ?? inner.scrollHeight / INFINITE_COPIES;
+    cycleHeightRef.current = Math.max(1, h);
+    return cycleHeightRef.current;
+  }, []);
+
   const readProgress = useCallback(() => {
     const wrap = imgsRef.current;
     const lenis = lenisRef.current;
+    const cycleHeight = measureCycle();
     if (lenis) {
-      applyProgress(lenis.progress);
+      const viewport = wrap?.clientHeight ?? 1;
+      const scrollable = Math.max(1, cycleHeight - viewport);
+      const wrapped = ((lenis.animatedScroll % cycleHeight) + cycleHeight) % cycleHeight;
+      applyProgress(wrapped / scrollable);
       return;
     }
     if (!wrap) {
       applyProgress(0);
       return;
     }
-    const max = wrap.scrollHeight - wrap.clientHeight;
-    applyProgress(max > 0 ? wrap.scrollTop / max : 0);
-  }, [applyProgress]);
+    const viewport = wrap.clientHeight;
+    const scrollable = Math.max(1, cycleHeight - viewport);
+    const wrapped = ((wrap.scrollTop % cycleHeight) + cycleHeight) % cycleHeight;
+    applyProgress(wrapped / scrollable);
+  }, [applyProgress, measureCycle]);
 
   const destroyLenis = useCallback(() => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -172,11 +201,14 @@ const ProjectDetail = forwardRef<ProjectDetailHandle, ProjectDetailProps>(functi
     const lenis = new Lenis({
       wrapper,
       content: imgsInnerRef.current,
-      duration: 1.9,
+      infinite: true,
+      syncTouch: true,
+      syncTouchLerp: 0.055,
+      lerp: 0.055,
       smoothWheel: true,
-      wheelMultiplier: 0.38,
-      touchMultiplier: 0.55,
-      easing: (t: number) => 1 - Math.pow(1 - t, 3),
+      wheelMultiplier: 0.28,
+      touchMultiplier: 0.38,
+      touchInertiaExponent: 1.55,
     });
     lenisRef.current = lenis;
     const onScroll = () => readProgress();
@@ -188,13 +220,14 @@ const ProjectDetail = forwardRef<ProjectDetailHandle, ProjectDetailProps>(functi
     };
     rafRef.current = requestAnimationFrame(raf);
     wrapper.scrollTop = 0;
+    measureCycle();
     applyProgress(0);
     return () => {
       wrapper.removeEventListener("scroll", onScroll);
       lenis.off("scroll", onScroll);
       destroyLenis();
     };
-  }, [open, project?.title, destroyLenis, applyProgress, readProgress]);
+  }, [open, project?.title, destroyLenis, applyProgress, readProgress, measureCycle]);
 
   useEffect(() => {
     lenisRef.current?.scrollTo(0, { immediate: true });
@@ -310,22 +343,21 @@ const ProjectDetail = forwardRef<ProjectDetailHandle, ProjectDetailProps>(functi
               </div>
               <div className="detail-meta">
                 <a className="detail-link" href="#" aria-label="Open live project" tabIndex={open ? 0 : -1}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M7 17L17 7M8 7h9v9" />
-                  </svg>
-                  <span className="detail-link-label">Open site</span>
+                  <span className="detail-link-icon" aria-hidden="true">
+                    <svg className="detail-link-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M7 17L17 7M8 7h9v9" />
+                    </svg>
+                  </span>
                 </a>
                 <span className="detail-pill">{project.category}</span>
                 <span className="detail-pill">{project.year}</span>
                 <span className="detail-pill">{project.role}</span>
-                <span className="detail-trophy" aria-hidden="true">🏆</span>
               </div>
             </div>
             <div className="detail-imgs" ref={imgsRef}>
               <div ref={imgsInnerRef}>
-                <PageFan pages={project.pages} />
-                {project.pages.map((pg) => (
-                  <EmptyFrame key={pg.id} cap={pg.cap} ph={pg.ph} />
+                {Array.from({ length: INFINITE_COPIES }, (_, copy) => (
+                  <DetailFrames key={copy} pages={project.pages} copy={copy} />
                 ))}
               </div>
             </div>

@@ -25,9 +25,9 @@ type Props = {
   onReady?: () => void;
 };
 
-const SCREEN_W = 4.48;
-const SCREEN_H = 2.72;
-const RADIUS = 8.6;
+const SCREEN_W = 5.12;
+const SCREEN_H = 3.08;
+const RADIUS = 9.1;
 const STEP = 0.6;
 const SEG_X = 36;
 const SEG_Y = 18;

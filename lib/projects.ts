@@ -38,6 +38,9 @@ export const projects: Project[] = [
       { id: "blirk-p2", ph: "Block selection view", cap: "Automated block selection" },
       { id: "blirk-p3", ph: "Generated proposal", cap: "Generated proposal, editable" },
       { id: "blirk-p4", ph: "Analytics dashboard", cap: "Delivery & engagement analytics" },
+      { id: "blirk-p5", ph: "Template library", cap: "Reusable layout blocks" },
+      { id: "blirk-p6", ph: "Editor canvas", cap: "Inline proposal editor" },
+      { id: "blirk-p7", ph: "Export & share", cap: "One-click client delivery" },
     ],
   },
   {
@@ -62,6 +65,9 @@ export const projects: Project[] = [
       { id: "champ-p1", ph: "Leaderboard screen", cap: "Live leaderboard" },
       { id: "champ-p2", ph: "Rewards / tiers screen", cap: "Reward tiers & progress" },
       { id: "champ-p3", ph: "Streak reveal", cap: "Streak reveal animation" },
+      { id: "champ-p4", ph: "Profile & stats", cap: "Member profile overview" },
+      { id: "champ-p5", ph: "Daily challenge", cap: "Daily challenge card" },
+      { id: "champ-p6", ph: "Reward unlock", cap: "Tier unlock celebration" },
     ],
   },
   {
@@ -86,6 +92,9 @@ export const projects: Project[] = [
       { id: "odds-p1", ph: "Value bets dashboard", cap: "Daily value board" },
       { id: "odds-p2", ph: "Fixture detail", cap: "Fixture breakdown" },
       { id: "odds-p3", ph: "Model performance", cap: "Backtest performance" },
+      { id: "odds-p4", ph: "League selector", cap: "Multi-league coverage" },
+      { id: "odds-p5", ph: "Odds movement", cap: "Live odds drift chart" },
+      { id: "odds-p6", ph: "Alert config", cap: "Value threshold alerts" },
     ],
   },
   {
@@ -110,6 +119,9 @@ export const projects: Project[] = [
       { id: "clinic-p2", ph: "Intake form", cap: "Streamlined intake form" },
       { id: "clinic-p3", ph: "Review & confirm", cap: "Review & confirm" },
       { id: "clinic-p4", ph: "Nurse dashboard", cap: "Shift dashboard" },
+      { id: "clinic-p5", ph: "Vitals capture", cap: "Quick vitals entry" },
+      { id: "clinic-p6", ph: "Handoff summary", cap: "End-of-shift handoff" },
+      { id: "clinic-p7", ph: "Audit trail", cap: "Compliance audit log" },
     ],
   },
 ];
