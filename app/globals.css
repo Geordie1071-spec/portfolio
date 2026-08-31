@@ -351,37 +351,33 @@ button {
 /* ===================== project detail ===================== */
 .detail-overlay {
   background: #222;
-  gap: 0;
-  padding: 0;
+  gap: 8px;
+  padding: 12px 0;
   align-items: stretch;
   justify-content: stretch;
 }
 .detail-peek {
   flex: none;
-  width: clamp(52px, 7vw, 88px);
+  width: clamp(18px, 2.4vw, 32px);
   border: none;
   background: #333;
-  color: #fff;
+  color: transparent;
   cursor: pointer;
-  padding: 0 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  font-family: var(--font-body), sans-serif;
-  font-weight: 700;
-  font-size: 12px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  transition: background 0.25s ease, width 0.3s ease;
+  padding: 0;
+  border-radius: 18px;
+  transition: width 0.3s ease, background 0.25s ease;
 }
 .detail-peek.prev {
-  transform: rotate(180deg);
+  margin-left: 8px;
+  border-radius: 18px 8px 8px 18px;
+}
+.detail-peek.next {
+  margin-right: 8px;
+  border-radius: 8px 18px 18px 8px;
 }
 .detail-peek:hover {
-  background: #3d3d3d;
-  width: clamp(64px, 8vw, 104px);
+  background: #3a3a3a;
+  width: clamp(28px, 3.2vw, 44px);
 }
 .detail-card {
   position: relative;
@@ -389,11 +385,12 @@ button {
   min-width: 0;
   background: #fff;
   color: #222;
-  border-radius: 0;
+  border-radius: 32px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  margin: clamp(18px, 3vh, 36px) 0;
+  margin: 0;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
   transform: translateY(18px);
   opacity: 0;
   transition:
@@ -409,10 +406,25 @@ button {
   top: 16px;
   right: 16px;
   margin: 0;
+  background: #111;
+}
+.detail-x:hover {
+  background: #333;
+}
+.detail-orb {
+  position: absolute;
+  left: 18px;
+  bottom: 16px;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid #222;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 3;
 }
 .detail-grid {
   display: grid;
-  grid-template-columns: minmax(240px, 0.72fr) minmax(0, 1.28fr);
+  grid-template-columns: minmax(260px, 0.78fr) minmax(0, 1.22fr);
   gap: 0;
   align-items: stretch;
   height: 100%;
@@ -422,40 +434,66 @@ button {
 .detail-left {
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: flex-start;
   gap: 18px;
-  padding: clamp(28px, 4vw, 48px);
+  padding: clamp(36px, 5vw, 56px) clamp(28px, 3vw, 44px);
   overflow: hidden;
 }
 .detail-left h1 {
   margin: 0;
-  font-family: "Tusker Grotesk", var(--font-heading), sans-serif;
-  font-weight: 400;
-  text-transform: uppercase;
-  font-size: clamp(40px, 5.4vw, 78px);
-  line-height: 0.88;
-  letter-spacing: -0.02em;
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-weight: 800;
+  text-transform: none;
+  font-size: clamp(36px, 4.6vw, 64px);
+  line-height: 0.95;
+  letter-spacing: -0.045em;
   color: #222;
 }
 .detail-tagline {
   margin: 0;
-  font-size: clamp(15px, 1.25vw, 18px);
+  font-size: clamp(14px, 1.15vw, 16px);
   line-height: 1.55;
+  font-weight: 400;
   color: #333;
-  max-width: 36ch;
+  max-width: 34ch;
 }
-.detail-tools {
+.detail-meta {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
+  margin-top: 8px;
 }
-.detail-tools span {
-  font-size: 12px;
-  font-weight: 600;
+.detail-link {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #111;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease;
+}
+.detail-link:hover {
   color: #fff;
   background: #333;
-  border-radius: 0;
-  padding: 7px 12px;
+  transform: scale(1.08);
+}
+.detail-pill {
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: #ececec;
+  color: #222;
+  border-radius: 999px;
+  padding: 8px 12px;
+}
+.detail-trophy {
+  font-size: 18px;
+  line-height: 1;
 }
 .detail-imgs {
   overflow: auto;
@@ -469,16 +507,46 @@ button {
 .detail-imgs > div {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 18px 18px 18px 0;
+  gap: 16px;
+  padding: 18px 22px 28px 8px;
+}
+
+.detail-fan {
+  position: relative;
+  height: clamp(280px, 52vh, 560px);
+  perspective: 1400px;
+  transform-style: preserve-3d;
+  margin: 8px 8px 8px 0;
+}
+.detail-fan-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: clamp(140px, 18vw, 220px);
+  height: 78%;
+  background: #f3f3f3;
+  border: 1px solid #e4e4e4;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #b0b0b0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 12px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
+  transform-style: preserve-3d;
 }
 
 .detail-frame {
   position: relative;
   overflow: hidden;
-  border-radius: 0;
+  border-radius: 12px;
   min-height: clamp(240px, 38vh, 460px);
-  background: #333;
+  background: #f3f3f3;
   --bx: 50%;
   --by: 50%;
 }
@@ -492,11 +560,11 @@ button {
   transform-origin: var(--bx) var(--by);
   transition: transform 0.45s cubic-bezier(0.22, 1, 0.32, 1);
   background:
-    radial-gradient(circle at var(--bx) var(--by), rgba(255, 255, 255, 0.12), transparent 42%),
-    #333;
+    radial-gradient(circle at var(--bx) var(--by), rgba(255, 255, 255, 0.8), transparent 42%),
+    #f3f3f3;
 }
 .detail-frame.is-hot .detail-frame-inner {
-  transform: scale(1.12);
+  transform: scale(1.08);
 }
 .detail-frame-lens {
   position: absolute;
@@ -505,7 +573,7 @@ button {
   border-radius: 50%;
   pointer-events: none;
   transform: translate(-50%, -50%) scale(0);
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.08) 45%, transparent 70%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.1) 45%, transparent 70%);
   mix-blend-mode: overlay;
   transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
   z-index: 2;
@@ -518,8 +586,7 @@ button {
   font-size: 14px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #fff;
-  opacity: 0.45;
+  color: #b0b0b0;
 }
 .detail-frame-cap {
   position: absolute;
@@ -527,8 +594,7 @@ button {
   bottom: 12px;
   font-size: 12px;
   font-weight: 600;
-  color: #fff;
-  opacity: 0.55;
+  color: #888;
   z-index: 3;
 }
 
@@ -538,15 +604,16 @@ button {
     grid-template-rows: auto 1fr;
   }
   .detail-left {
-    justify-content: flex-start;
-    padding-bottom: 12px;
+    padding-bottom: 8px;
   }
   .detail-imgs > div {
     padding: 0 18px 18px;
   }
   .detail-peek {
-    width: 36px;
-    font-size: 10px;
+    width: 14px;
+  }
+  .detail-fan {
+    height: 240px;
   }
 }
 
