@@ -14,6 +14,13 @@ export type Project = {
   pages: ProjectPage[];
 };
 
+const frame = (id: string, ph: string, cap: string) => ({
+  id,
+  ph,
+  cap,
+  img: `/uploads/frames/${id}.webp`,
+});
+
 export const projects: Project[] = [
   {
     year: "2026",
@@ -34,13 +41,13 @@ export const projects: Project[] = [
     ],
     tools: ["Python", "LangChain", "OpenAI API", "React", "Node.js", "Postgres"],
     pages: [
-      { id: "blirk-p1", ph: "Briefing intake screen", cap: "Briefing intake — paste and parse" },
-      { id: "blirk-p2", ph: "Block selection view", cap: "Automated block selection" },
-      { id: "blirk-p3", ph: "Generated proposal", cap: "Generated proposal, editable" },
-      { id: "blirk-p4", ph: "Analytics dashboard", cap: "Delivery & engagement analytics" },
-      { id: "blirk-p5", ph: "Template library", cap: "Reusable layout blocks" },
-      { id: "blirk-p6", ph: "Editor canvas", cap: "Inline proposal editor" },
-      { id: "blirk-p7", ph: "Export & share", cap: "One-click client delivery" },
+      frame("blirk-p1", "Briefing intake screen", "Briefing intake — paste and parse"),
+      frame("blirk-p2", "Block selection view", "Automated block selection"),
+      frame("blirk-p3", "Generated proposal", "Generated proposal, editable"),
+      frame("blirk-p4", "Analytics dashboard", "Delivery & engagement analytics"),
+      frame("blirk-p5", "Template library", "Reusable layout blocks"),
+      frame("blirk-p6", "Editor canvas", "Inline proposal editor"),
+      frame("blirk-p7", "Export & share", "One-click client delivery"),
     ],
   },
   {
@@ -62,12 +69,12 @@ export const projects: Project[] = [
     ],
     tools: ["React", "TypeScript", "Framer Motion", "Node.js", "Redis"],
     pages: [
-      { id: "champ-p1", ph: "Leaderboard screen", cap: "Live leaderboard" },
-      { id: "champ-p2", ph: "Rewards / tiers screen", cap: "Reward tiers & progress" },
-      { id: "champ-p3", ph: "Streak reveal", cap: "Streak reveal animation" },
-      { id: "champ-p4", ph: "Profile & stats", cap: "Member profile overview" },
-      { id: "champ-p5", ph: "Daily challenge", cap: "Daily challenge card" },
-      { id: "champ-p6", ph: "Reward unlock", cap: "Tier unlock celebration" },
+      frame("champ-p1", "Leaderboard screen", "Live leaderboard"),
+      frame("champ-p2", "Rewards / tiers screen", "Reward tiers & progress"),
+      frame("champ-p3", "Streak reveal", "Streak reveal animation"),
+      frame("champ-p4", "Profile & stats", "Member profile overview"),
+      frame("champ-p5", "Daily challenge", "Daily challenge card"),
+      frame("champ-p6", "Reward unlock", "Tier unlock celebration"),
     ],
   },
   {
@@ -89,12 +96,12 @@ export const projects: Project[] = [
     ],
     tools: ["Python", "scikit-learn", "XGBoost", "Pandas", "FastAPI"],
     pages: [
-      { id: "odds-p1", ph: "Value bets dashboard", cap: "Daily value board" },
-      { id: "odds-p2", ph: "Fixture detail", cap: "Fixture breakdown" },
-      { id: "odds-p3", ph: "Model performance", cap: "Backtest performance" },
-      { id: "odds-p4", ph: "League selector", cap: "Multi-league coverage" },
-      { id: "odds-p5", ph: "Odds movement", cap: "Live odds drift chart" },
-      { id: "odds-p6", ph: "Alert config", cap: "Value threshold alerts" },
+      frame("odds-p1", "Value bets dashboard", "Daily value board"),
+      frame("odds-p2", "Fixture detail", "Fixture breakdown"),
+      frame("odds-p3", "Model performance", "Backtest performance"),
+      frame("odds-p4", "League selector", "Multi-league coverage"),
+      frame("odds-p5", "Odds movement", "Live odds drift chart"),
+      frame("odds-p6", "Alert config", "Value threshold alerts"),
     ],
   },
   {
@@ -115,13 +122,13 @@ export const projects: Project[] = [
     ],
     tools: ["Figma", "React", "TypeScript", "FHIR", "Playwright"],
     pages: [
-      { id: "clinic-p1", ph: "Patient lookup", cap: "Patient lookup" },
-      { id: "clinic-p2", ph: "Intake form", cap: "Streamlined intake form" },
-      { id: "clinic-p3", ph: "Review & confirm", cap: "Review & confirm" },
-      { id: "clinic-p4", ph: "Nurse dashboard", cap: "Shift dashboard" },
-      { id: "clinic-p5", ph: "Vitals capture", cap: "Quick vitals entry" },
-      { id: "clinic-p6", ph: "Handoff summary", cap: "End-of-shift handoff" },
-      { id: "clinic-p7", ph: "Audit trail", cap: "Compliance audit log" },
+      frame("clinic-p1", "Patient lookup", "Patient lookup"),
+      frame("clinic-p2", "Intake form", "Streamlined intake form"),
+      frame("clinic-p3", "Review & confirm", "Review & confirm"),
+      frame("clinic-p4", "Nurse dashboard", "Shift dashboard"),
+      frame("clinic-p5", "Vitals capture", "Quick vitals entry"),
+      frame("clinic-p6", "Handoff summary", "End-of-shift handoff"),
+      frame("clinic-p7", "Audit trail", "Compliance audit log"),
     ],
   },
 ];

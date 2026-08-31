@@ -17,7 +17,7 @@ type ProjectDetailProps = {
   nextTitle: string;
 };
 
-function EmptyFrame({ cap, ph }: { cap: string; ph: string }) {
+function EmptyFrame({ cap, ph, img }: { cap: string; ph: string; img?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const lens = useRef<HTMLDivElement>(null);
   const [hot, setHot] = useState(false);
@@ -49,7 +49,12 @@ function EmptyFrame({ cap, ph }: { cap: string; ph: string }) {
       onMouseMove={onMove}
     >
       <div className="detail-frame-inner">
-        <span className="detail-frame-ph">{ph}</span>
+        {img ? (
+          /* eslint-disable-next-line @next/next/no-img-element -- local placeholder assets */
+          <img className="detail-frame-img" src={img} alt={cap} draggable={false} />
+        ) : (
+          <span className="detail-frame-ph">{ph}</span>
+        )}
       </div>
       <div ref={lens} className="detail-frame-lens" aria-hidden="true" />
       <span className="detail-frame-cap">{cap}</span>
@@ -64,7 +69,7 @@ function DetailFrames({ pages, copy }: { pages: ProjectPage[]; copy: number }) {
     <div className="detail-imgs-cycle" data-cycle={copy}>
       <PageFan pages={pages} />
       {pages.map((pg) => (
-        <EmptyFrame key={`${copy}-${pg.id}`} cap={pg.cap} ph={pg.ph} />
+        <EmptyFrame key={`${copy}-${pg.id}`} cap={pg.cap} ph={pg.ph} img={pg.img} />
       ))}
     </div>
   );
@@ -85,7 +90,12 @@ function PageFan({ pages }: { pages: ProjectPage[] }) {
               zIndex: 20 - Math.abs(Math.round(off * 10)),
             }}
           >
-            <span>{pg.ph}</span>
+            {pg.img ? (
+              /* eslint-disable-next-line @next/next/no-img-element -- local placeholder assets */
+              <img className="detail-fan-img" src={pg.img} alt="" draggable={false} />
+            ) : (
+              <span>{pg.ph}</span>
+            )}
           </div>
         );
       })}
