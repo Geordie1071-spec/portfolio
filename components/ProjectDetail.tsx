@@ -67,38 +67,9 @@ const INFINITE_COPIES = 2;
 function DetailFrames({ pages, copy }: { pages: ProjectPage[]; copy: number }) {
   return (
     <div className="detail-imgs-cycle" data-cycle={copy}>
-      <PageFan pages={pages} />
       {pages.map((pg) => (
         <EmptyFrame key={`${copy}-${pg.id}`} cap={pg.cap} ph={pg.ph} img={pg.img} />
       ))}
-    </div>
-  );
-}
-function PageFan({ pages }: { pages: ProjectPage[] }) {
-  const n = pages.length;
-  const mid = (n - 1) / 2;
-  return (
-    <div className="detail-fan" aria-hidden={n === 0}>
-      {pages.map((pg, i) => {
-        const off = i - mid;
-        return (
-          <div
-            key={pg.id}
-            className="detail-fan-card"
-            style={{
-              transform: `translate(-50%, -50%) translateX(${off * 155}px) rotateY(${-off * 38}deg) translateZ(${-Math.abs(off) * 70}px) scale(${1 - Math.abs(off) * 0.06})`,
-              zIndex: 20 - Math.abs(Math.round(off * 10)),
-            }}
-          >
-            {pg.img ? (
-              /* eslint-disable-next-line @next/next/no-img-element -- local placeholder assets */
-              <img className="detail-fan-img" src={pg.img} alt="" draggable={false} />
-            ) : (
-              <span>{pg.ph}</span>
-            )}
-          </div>
-        );
-      })}
     </div>
   );
 }
