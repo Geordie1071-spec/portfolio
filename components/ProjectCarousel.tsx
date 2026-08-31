@@ -23,10 +23,10 @@ type Props = {
   onOpen: (index: number) => void;
 };
 
-const SCREEN_W = 4.85;
-const SCREEN_H = 2.95;
-const RADIUS = 7.6;
-const STEP = 0.348;
+const SCREEN_W = 4.48;
+const SCREEN_H = 2.72;
+const RADIUS = 8.6;
+const STEP = 0.6;
 const SEG_X = 36;
 const SEG_Y = 18;
 
@@ -232,7 +232,7 @@ function CurvedScreen({
 function Rig() {
   const { size } = useThree();
   useFrame(({ camera }) => {
-    const z = size.width < 680 ? 9.6 : 7.35;
+    const z = size.width < 680 ? 10.1 : 7.7;
     camera.position.set(0, 0.72, z);
     camera.lookAt(0, 0.05, 0);
   });
@@ -398,7 +398,7 @@ const ProjectCarousel = forwardRef<ProjectCarouselHandle, Props>(function Projec
       >
         <color attach="background" args={["#222222"]} />
         <fog attach="fog" args={["#222222", 12, 32]} />
-        <PerspectiveCamera makeDefault fov={32} position={[0, 0.72, 7.35]} />
+        <PerspectiveCamera makeDefault fov={32} position={[0, 0.72, 7.7]} />
         <ambientLight intensity={0.7} />
         <Rig />
         <Grid

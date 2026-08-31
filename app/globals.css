@@ -122,7 +122,7 @@ button {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 22px clamp(72px, 18vw, 260px) 0;
+  padding: 22px clamp(28px, 3.8vw, 56px) 0;
   pointer-events: none;
   transition: opacity 0.4s ease;
 }
@@ -254,10 +254,11 @@ button {
 .profile-overlay {
   position: fixed;
   inset: 0;
-  z-index: 120;
+  z-index: 365;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 20px 12px;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.42s ease;
@@ -282,12 +283,14 @@ button {
 .profile-card {
   position: relative;
   z-index: 1;
-  width: min(560px, calc(100% - 48px));
+  width: min(960px, calc(100% - 56px));
+  min-height: min(640px, calc(100vh - 88px));
   background: #fff;
   color: #222;
   border-radius: 0;
-  padding: clamp(36px, 5vw, 56px) clamp(28px, 4vw, 48px) 40px;
+  padding: clamp(48px, 5.6vw, 72px) clamp(40px, 4.4vw, 64px) 56px;
   box-shadow: 0 40px 90px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
   transform: translateY(28px) scale(0.94);
   opacity: 0;
   transition:
@@ -298,54 +301,72 @@ button {
   transform: none;
   opacity: 1;
 }
-.profile-avatar {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: #222;
-  color: #fff;
-  display: grid;
-  place-items: center;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  margin-bottom: 18px;
+.profile-copy {
+  position: relative;
+  z-index: 1;
+  max-width: min(34rem, 62%);
+  padding-right: 12px;
 }
 .profile-card h2 {
-  margin: 0;
+  margin: 0 0 14px;
   font-family: "Tusker Grotesk", var(--font-heading), sans-serif;
   font-weight: 400;
-  font-size: clamp(36px, 5vw, 52px);
-  letter-spacing: -0.02em;
+  font-size: clamp(44px, 6.2vw, 76px);
+  letter-spacing: -0.03em;
   text-transform: uppercase;
-  line-height: 0.92;
+  line-height: 0.9;
 }
 .profile-role {
-  margin: 8px 0 22px;
+  margin: 0 0 36px;
   font-weight: 700;
   font-size: 13px;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: #333;
 }
+.profile-bio {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: 42ch;
+}
 .profile-bio p {
-  margin: 0 0 10px;
-  font-size: 15px;
-  line-height: 1.65;
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.75;
   color: #333;
 }
 .profile-tech {
-  margin: 22px 0 0;
+  margin: 36px 0 0;
   font-size: 12px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: #333;
-  line-height: 1.6;
+  line-height: 1.9;
   opacity: 0.7;
+  max-width: 38ch;
 }
 .profile-socials {
   display: flex;
-  gap: 12px;
-  margin: 28px 0 22px;
+  gap: 14px;
+  margin: 40px 0 28px;
+}
+.profile-portrait {
+  position: absolute;
+  right: -18px;
+  bottom: -24px;
+  height: 82%;
+  z-index: 0;
+  pointer-events: none;
+  user-select: none;
+}
+.profile-portrait img {
+  display: block;
+  height: 100%;
+  width: auto;
+  object-fit: contain;
+  object-position: right bottom;
+  filter: drop-shadow(0 22px 40px rgba(0, 0, 0, 0.18));
 }
 
 /* ===================== project detail ===================== */
@@ -738,6 +759,21 @@ button {
 }
 
 /* ===================== mobile ===================== */
+@media (max-width: 900px) {
+  .profile-copy {
+    max-width: none;
+    padding-bottom: 240px;
+  }
+  .profile-bio {
+    max-width: none;
+  }
+  .profile-portrait {
+    height: 300px;
+    right: -24px;
+    bottom: -36px;
+  }
+}
+
 @media (max-width: 680px) {
   .site-frame,
   .deck-inset {
@@ -745,7 +781,7 @@ button {
     border-radius: 16px !important;
   }
   .site-chrome {
-    padding: 16px clamp(36px, 12vw, 72px) 0;
+    padding: 16px 18px 0;
   }
   .chrome-logo svg {
     width: 38px;
@@ -755,7 +791,22 @@ button {
     font-size: 12px;
   }
   .profile-card {
+    width: calc(100% - 28px);
+    min-height: 0;
     padding: 32px 22px 28px;
+  }
+  .profile-copy {
+    max-width: none;
+    padding-right: 0;
+    padding-bottom: 200px;
+  }
+  .profile-bio {
+    max-width: none;
+  }
+  .profile-portrait {
+    height: 240px;
+    right: -18px;
+    bottom: -28px;
   }
   .detail-card {
     margin: 12px 0;
