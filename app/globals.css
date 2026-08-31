@@ -38,22 +38,22 @@ body::-webkit-scrollbar {
 
 body {
   margin: 0;
-  background: #0b1e6b;
+  background: #222;
   font-family: var(--font-body), system-ui, sans-serif;
   color: #fff;
   -webkit-font-smoothing: antialiased;
 }
 
 a {
-  color: #8fe9f2;
+  color: #fff;
   text-decoration: none;
 }
 a:hover {
-  color: #bfc4ff;
+  color: #ccc;
 }
 
 ::selection {
-  background: #2b47ff;
+  background: #333;
   color: #fff;
 }
 
@@ -69,6 +69,10 @@ button {
   box-shadow: 0 0 0 9999px #fff;
   pointer-events: none;
   z-index: 350;
+  transition: opacity 0.4s ease;
+}
+.site-frame.is-hidden {
+  opacity: 0;
 }
 .deck-inset {
   position: fixed;
@@ -76,7 +80,7 @@ button {
   border-radius: 22px;
   overflow: hidden;
   z-index: 2;
-  background: #070d24;
+  background: #222;
   transition:
     filter 0.55s cubic-bezier(0.5, 0, 0.15, 1),
     transform 0.55s cubic-bezier(0.5, 0, 0.15, 1);
@@ -120,6 +124,11 @@ button {
   justify-content: space-between;
   padding: 22px 28px 0;
   pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+.site-chrome.is-hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 .chrome-logo,
 .chrome-profile {
@@ -129,43 +138,33 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #dce4ff;
+  color: #fff;
   background: none;
   border: none;
   padding: 8px;
   cursor: pointer;
-  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.25s ease;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.25s ease, opacity 0.35s ease;
 }
 .chrome-logo:hover {
   color: #fff;
   transform: scale(1.06);
 }
 .chrome-profile {
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  border: 1px solid rgba(234, 247, 255, 0.35);
-  background: rgba(230, 232, 240, 0.96);
-  color: #15193a;
+  background: none;
+  border: none;
+  padding: 8px 4px;
+  color: #fff;
   font-family: var(--font-body), sans-serif;
-  font-weight: 800;
-  font-size: 15px;
-  letter-spacing: 0.04em;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
   cursor: pointer;
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.28);
-  transition:
-    transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1),
-    background 0.25s ease,
-    color 0.25s ease,
-    box-shadow 0.25s ease;
+  transition: opacity 0.25s ease;
 }
 .chrome-profile:hover,
 .chrome-profile.is-open {
-  background: #2b47ff;
-  color: #fff;
-  border-color: #2b47ff;
-  transform: scale(1.08);
-  box-shadow: 0 12px 28px rgba(43, 71, 255, 0.45);
+  opacity: 0.55;
 }
 
 /* ===================== loader ===================== */
@@ -173,7 +172,7 @@ button {
   position: fixed;
   inset: 0;
   z-index: 400;
-  background: #0b1e6b;
+  background: #222;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -226,7 +225,7 @@ button {
   position: absolute;
   inset: 0;
   border: none;
-  background: rgba(5, 8, 22, 0.28);
+  background: rgba(34, 34, 34, 0.55);
   cursor: pointer;
   padding: 0;
 }
@@ -238,7 +237,7 @@ button {
   height: 42px;
   border-radius: 50%;
   border: none;
-  background: #111;
+  background: #222;
   color: #fff;
   display: flex;
   align-items: center;
@@ -249,14 +248,24 @@ button {
 }
 .overlay-x:hover {
   transform: scale(1.08) rotate(90deg);
-  background: #2b47ff;
+  background: #333;
 }
 
-.profile-overlay,
-.detail-overlay {
+.profile-overlay {
   position: fixed;
   inset: 0;
   z-index: 120;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.42s ease;
+}
+.detail-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 360;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -274,9 +283,9 @@ button {
   position: relative;
   z-index: 1;
   width: min(560px, calc(100% - 48px));
-  background: #f4f6fb;
-  color: #14182c;
-  border-radius: 28px;
+  background: #fff;
+  color: #222;
+  border-radius: 0;
   padding: clamp(36px, 5vw, 56px) clamp(28px, 4vw, 48px) 40px;
   box-shadow: 0 40px 90px rgba(0, 0, 0, 0.45);
   transform: translateY(28px) scale(0.94);
@@ -293,7 +302,7 @@ button {
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: #111;
+  background: #222;
   color: #fff;
   display: grid;
   place-items: center;
@@ -316,26 +325,22 @@ button {
   font-size: 13px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #5b6480;
-}
-.profile-bio {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  color: #333;
 }
 .profile-bio p {
-  margin: 0;
+  margin: 0 0 10px;
   font-size: 15px;
   line-height: 1.65;
-  color: #2a3148;
+  color: #333;
 }
 .profile-tech {
   margin: 22px 0 0;
   font-size: 12px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #6a7390;
+  color: #333;
   line-height: 1.6;
+  opacity: 0.7;
 }
 .profile-socials {
   display: flex;
@@ -345,122 +350,135 @@ button {
 
 /* ===================== project detail ===================== */
 .detail-overlay {
+  background: #222;
+  gap: 0;
+  padding: 0;
   align-items: stretch;
   justify-content: stretch;
-  padding: 8px;
 }
-.detail-shell {
+.detail-peek {
+  flex: none;
+  width: clamp(52px, 7vw, 88px);
+  border: none;
+  background: #333;
+  color: #fff;
+  cursor: pointer;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-family: var(--font-body), sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  transition: background 0.25s ease, width 0.3s ease;
+}
+.detail-peek.prev {
+  transform: rotate(180deg);
+}
+.detail-peek:hover {
+  background: #3d3d3d;
+  width: clamp(64px, 8vw, 104px);
+}
+.detail-card {
   position: relative;
   flex: 1;
+  min-width: 0;
   background: #fff;
-  color: #14182c;
-  border-radius: 22px;
-  overflow: auto;
-  min-height: 0;
-  transform: translateY(18px) scale(0.985);
+  color: #222;
+  border-radius: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  margin: clamp(18px, 3vh, 36px) 0;
+  transform: translateY(18px);
   opacity: 0;
   transition:
     transform 0.55s cubic-bezier(0.22, 1.2, 0.32, 1),
     opacity 0.4s ease;
 }
-.detail-overlay.is-open .detail-shell {
+.detail-overlay.is-open .detail-card {
   transform: none;
   opacity: 1;
 }
 .detail-x {
-  position: sticky;
-  top: 18px;
-  float: right;
-  margin: 0 18px 0 0;
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  margin: 0;
 }
 .detail-grid {
   display: grid;
-  grid-template-columns: minmax(0, 0.86fr) minmax(0, 1.14fr);
-  gap: clamp(28px, 4vw, 64px);
-  align-items: start;
-  padding: clamp(28px, 4vw, 56px) clamp(28px, 4vw, 56px) clamp(48px, 6vw, 80px);
+  grid-template-columns: minmax(240px, 0.72fr) minmax(0, 1.28fr);
+  gap: 0;
+  align-items: stretch;
+  height: 100%;
+  min-height: 0;
+  flex: 1;
 }
 .detail-left {
-  position: sticky;
-  top: 28px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding-right: 8px;
-}
-.detail-meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
-}
-.detail-pill {
-  font-weight: 700;
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  background: #111;
-  color: #fff;
-  border-radius: 999px;
-  padding: 7px 12px;
-}
-.detail-pill.ghost {
-  background: #eceff5;
-  color: #3a4258;
-}
-.detail-year {
-  font-weight: 700;
-  font-size: 13px;
-  color: #6a7390;
+  justify-content: flex-end;
+  gap: 18px;
+  padding: clamp(28px, 4vw, 48px);
+  overflow: hidden;
 }
 .detail-left h1 {
   margin: 0;
   font-family: "Tusker Grotesk", var(--font-heading), sans-serif;
   font-weight: 400;
   text-transform: uppercase;
-  font-size: clamp(44px, 6vw, 88px);
+  font-size: clamp(40px, 5.4vw, 78px);
   line-height: 0.88;
   letter-spacing: -0.02em;
+  color: #222;
 }
 .detail-tagline {
   margin: 0;
-  font-size: clamp(16px, 1.4vw, 20px);
-  line-height: 1.5;
-  color: #3a4258;
-  max-width: 42ch;
-}
-.detail-overview p {
-  margin: 0 0 12px;
-  font-size: 15px;
-  line-height: 1.7;
-  color: #2a3148;
+  font-size: clamp(15px, 1.25vw, 18px);
+  line-height: 1.55;
+  color: #333;
+  max-width: 36ch;
 }
 .detail-tools {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 8px;
 }
 .detail-tools span {
   font-size: 12px;
   font-weight: 600;
-  color: #2a3148;
-  background: #eceff5;
-  border-radius: 999px;
+  color: #fff;
+  background: #333;
+  border-radius: 0;
   padding: 7px 12px;
 }
 .detail-imgs {
+  overflow: auto;
+  height: 100%;
+  min-height: 0;
+  scrollbar-width: none;
+}
+.detail-imgs::-webkit-scrollbar {
+  display: none;
+}
+.detail-imgs > div {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
+  padding: 18px 18px 18px 0;
 }
 
 .detail-frame {
   position: relative;
   overflow: hidden;
-  border-radius: 14px;
+  border-radius: 0;
   min-height: clamp(240px, 38vh, 460px);
-  background: #e7ebf3;
+  background: #333;
   --bx: 50%;
   --by: 50%;
 }
@@ -474,8 +492,8 @@ button {
   transform-origin: var(--bx) var(--by);
   transition: transform 0.45s cubic-bezier(0.22, 1, 0.32, 1);
   background:
-    radial-gradient(circle at var(--bx) var(--by), rgba(255, 255, 255, 0.55), transparent 42%),
-    linear-gradient(145deg, #eef1f7, #d9dee8);
+    radial-gradient(circle at var(--bx) var(--by), rgba(255, 255, 255, 0.12), transparent 42%),
+    #333;
 }
 .detail-frame.is-hot .detail-frame-inner {
   transform: scale(1.12);
@@ -487,7 +505,7 @@ button {
   border-radius: 50%;
   pointer-events: none;
   transform: translate(-50%, -50%) scale(0);
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.12) 45%, transparent 70%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.08) 45%, transparent 70%);
   mix-blend-mode: overlay;
   transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
   z-index: 2;
@@ -500,7 +518,8 @@ button {
   font-size: 14px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #8a93ab;
+  color: #fff;
+  opacity: 0.45;
 }
 .detail-frame-cap {
   position: absolute;
@@ -508,16 +527,26 @@ button {
   bottom: 12px;
   font-size: 12px;
   font-weight: 600;
-  color: #5b6480;
+  color: #fff;
+  opacity: 0.55;
   z-index: 3;
 }
 
 @media (max-width: 860px) {
   .detail-grid {
     grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
   }
   .detail-left {
-    position: static;
+    justify-content: flex-start;
+    padding-bottom: 12px;
+  }
+  .detail-imgs > div {
+    padding: 0 18px 18px;
+  }
+  .detail-peek {
+    width: 36px;
+    font-size: 10px;
   }
 }
 
@@ -528,49 +557,40 @@ button {
   font-size: 16px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #15193a;
-  background: #e6e8f0;
-  border-radius: 999px;
+  color: #fff;
+  background: #333;
+  border-radius: 0;
   padding: 16px 32px;
   text-decoration: none;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
   transition:
     transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
-    box-shadow 0.28s ease,
-    background 0.25s ease,
-    color 0.25s ease;
+    background 0.25s ease;
   display: inline-flex;
   align-items: center;
 }
 .btn-resume:hover {
-  color: #fff;
-  background: #2b47ff;
-  box-shadow: 0 10px 22px rgba(43, 71, 255, 0.5);
-  transform: scale(1.06);
+  background: #222;
+  transform: scale(1.04);
 }
 
 .social-bubble {
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  background: #fff;
-  border: 1px solid #e5ebf2;
-  color: #2b47ff;
+  background: #333;
+  border: none;
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 20px rgba(11, 42, 74, 0.12);
   transition:
     transform 0.26s cubic-bezier(0.34, 1.56, 0.64, 1),
-    background 0.2s ease,
-    color 0.2s ease;
+    background 0.2s ease;
 }
 .social-bubble:hover {
-  background: #2b47ff;
-  border-color: #2b47ff;
+  background: #222;
   color: #fff;
-  box-shadow: 0 12px 26px rgba(43, 71, 255, 0.5);
-  transform: scale(1.12);
+  transform: scale(1.1);
 }
 
 /* ===================== mobile ===================== */
@@ -580,12 +600,6 @@ button {
     inset: 4px !important;
     border-radius: 16px !important;
   }
-  .detail-overlay {
-    padding: 4px;
-  }
-  .detail-shell {
-    border-radius: 16px;
-  }
   .site-chrome {
     padding: 16px 16px 0;
   }
@@ -594,12 +608,12 @@ button {
     height: 28px;
   }
   .chrome-profile {
-    width: 44px;
-    height: 44px;
-    font-size: 13px;
+    font-size: 12px;
   }
   .profile-card {
     padding: 32px 22px 28px;
-    border-radius: 22px;
+  }
+  .detail-card {
+    margin: 12px 0;
   }
 }

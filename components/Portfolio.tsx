@@ -7,7 +7,6 @@ import LogoIcon from "./LogoIcon";
 import ProfilePanel from "./ProfilePanel";
 import ProjectDetail from "./ProjectDetail";
 import { projects } from "@/lib/projects";
-import { INITIALS } from "@/lib/site";
 import type { ProjectCarouselHandle } from "./ProjectCarousel";
 
 const ProjectCarousel = dynamic(() => import("./ProjectCarousel"), { ssr: false });
@@ -78,8 +77,8 @@ export default function Portfolio() {
     const dot = cursorDotRef.current;
     if (!dot) return;
     dot.style.transform = anim.cursorBreak ? "scale(.75)" : anim.cursorHot ? "scale(1.75)" : "scale(1)";
-    dot.style.background = anim.cursorHot ? "rgba(143,233,242,.22)" : "rgba(234,247,255,.16)";
-    dot.style.borderColor = anim.cursorHot ? "rgba(143,233,242,.95)" : "rgba(234,247,255,.85)";
+    dot.style.background = anim.cursorHot ? "rgba(255,255,255,.22)" : "rgba(255,255,255,.12)";
+    dot.style.borderColor = anim.cursorHot ? "#ffffff" : "rgba(255,255,255,.7)";
   };
 
   useEffect(() => {
@@ -157,15 +156,18 @@ export default function Portfolio() {
   }, []);
 
   const overlayUp = profileOpen || detailOpen;
+  const n = projects.length;
   const dv = detailIdx == null ? null : projects[detailIdx];
+  const prevTitle = projects[((detailIdx ?? 0) - 1 + n) % n].title;
+  const nextTitle = projects[((detailIdx ?? 0) + 1) % n].title;
 
   return (
     <div style={{ minWidth: 0 }}>
       {loading && <Loader onComplete={onLoaderDone} />}
 
-      <div className="site-frame" aria-hidden="true" />
+      <div className={`site-frame${detailOpen ? " is-hidden" : ""}`} aria-hidden="true" />
 
-      <header className="site-chrome">
+      <header className={`site-chrome${detailOpen ? " is-hidden" : ""}`}>
         <button className="chrome-logo" onClick={closeOverlays} aria-label="Geordie Ellis">
           <LogoIcon width={52} height={38} />
         </button>
@@ -175,16 +177,23 @@ export default function Portfolio() {
           aria-label="Open profile"
           aria-expanded={profileOpen}
         >
-          {INITIALS}
+          Profile
         </button>
       </header>
 
-      <div className={`deck-inset${overlayUp ? " is-dimmed" : ""}`}>
+      <div className={`deck-inset${profileOpen ? " is-dimmed" : ""}`}>
         <ProjectCarousel ref={carouselRef} projects={projects} paused={overlayUp || loading} onOpen={openDetail} />
       </div>
 
       <ProfilePanel open={profileOpen} onClose={closeProfile} />
-      <ProjectDetail project={dv} open={detailOpen} onClose={closeDetail} />
+      <ProjectDetail
+        project={dv}
+        open={detailOpen}
+        onClose={closeDetail}
+        onSwitch={switchDetail}
+        prevTitle={prevTitle}
+        nextTitle={nextTitle}
+      />
 
       <div
         ref={cursorRef}
@@ -210,8 +219,8 @@ export default function Portfolio() {
             width: "100%",
             height: "100%",
             borderRadius: "50%",
-            background: "rgba(234,247,255,.16)",
-            border: "1.5px solid rgba(234,247,255,.85)",
+            background: "rgba(255,255,255,.12)",
+            border: "1.5px solid rgba(255,255,255,.7)",
             WebkitBackdropFilter: "blur(2px) saturate(140%)",
             backdropFilter: "blur(2px) saturate(140%)",
             boxShadow: "inset 0 1px 3px rgba(255,255,255,.5),0 2px 8px rgba(9,14,40,.45)",

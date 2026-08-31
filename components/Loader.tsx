@@ -57,7 +57,7 @@ export default function Loader({ onComplete }: { onComplete: () => void }) {
 
   return (
     <div ref={rootRef} className="site-loader" aria-hidden="true">
-      <svg className="site-loader-mark" viewBox="0 0 97 70" fill="#eaf7ff" xmlns="http://www.w3.org/2000/svg">
+      <svg className="site-loader-mark" viewBox="0 0 97 70" fill="#ffffff" xmlns="http://www.w3.org/2000/svg">
         {LOGO_PATHS.map((d, i) => {
           const order = SHARD_ORDER.indexOf(i);
           const delay = order * APPEAR_STAGGER;

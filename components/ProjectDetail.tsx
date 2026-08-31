@@ -8,6 +8,9 @@ type ProjectDetailProps = {
   project: Project | null;
   open: boolean;
   onClose: () => void;
+  onSwitch: (dir: number) => void;
+  prevTitle: string;
+  nextTitle: string;
 };
 
 function EmptyFrame({ cap, ph }: { cap: string; ph: string }) {
@@ -50,12 +53,19 @@ function EmptyFrame({ cap, ph }: { cap: string; ph: string }) {
   );
 }
 
-export default function ProjectDetail({ project, open, onClose }: ProjectDetailProps) {
-  const overlayRef = useRef<HTMLDivElement | null>(null);
-  const contentRef = useRef<HTMLDivElement | null>(null);
-  const gridRef = useRef<HTMLDivElement | null>(null);
+export default function ProjectDetail({
+  project,
+  open,
+  onClose,
+  onSwitch,
+  prevTitle,
+  nextTitle,
+}: ProjectDetailProps) {
+  const imgsRef = useRef<HTMLDivElement | null>(null);
+  const imgsInnerRef = useRef<HTMLDivElement | null>(null);
   const lenisRef = useRef<Lenis | null>(null);
   const rafRef = useRef<number | undefined>(undefined);
+
   const destroyLenis = useCallback(() => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     rafRef.current = undefined;
@@ -64,14 +74,14 @@ export default function ProjectDetail({ project, open, onClose }: ProjectDetailP
   }, []);
 
   useEffect(() => {
-    if (!open || !overlayRef.current || !contentRef.current) {
+    if (!open || !imgsRef.current || !imgsInnerRef.current) {
       destroyLenis();
       return;
     }
     destroyLenis();
     const lenis = new Lenis({
-      wrapper: overlayRef.current,
-      content: contentRef.current,
+      wrapper: imgsRef.current,
+      content: imgsInnerRef.current,
       duration: 1.15,
       smoothWheel: true,
       easing: (t: number) => 1 - Math.pow(1 - t, 3),
@@ -82,65 +92,62 @@ export default function ProjectDetail({ project, open, onClose }: ProjectDetailP
       rafRef.current = requestAnimationFrame(raf);
     };
     rafRef.current = requestAnimationFrame(raf);
-    overlayRef.current.scrollTop = 0;
+    imgsRef.current.scrollTop = 0;
     return destroyLenis;
   }, [open, project?.title, destroyLenis]);
 
   useEffect(() => {
-    const g = gridRef.current;
-    if (!open || !g) return;
-    g.style.transition = "none";
-    g.style.opacity = "0";
-    g.style.transform = "translateY(16px)";
-    const id = requestAnimationFrame(() => {
-      g.style.transition = "opacity .32s ease, transform .4s cubic-bezier(.22,1.2,.32,1)";
-      g.style.opacity = "1";
-      g.style.transform = "translateY(0)";
-    });
     lenisRef.current?.scrollTo(0, { immediate: true });
-    if (overlayRef.current) overlayRef.current.scrollTop = 0;
-    return () => cancelAnimationFrame(id);
+    if (imgsRef.current) imgsRef.current.scrollTop = 0;
   }, [project?.title, open]);
 
   return (
     <div className={`detail-overlay${open ? " is-open" : ""}`} aria-hidden={!open}>
-      <div ref={overlayRef} className="detail-shell">
-        <div ref={contentRef}>
+      <button
+        className="detail-peek prev"
+        onClick={() => onSwitch(-1)}
+        tabIndex={open ? 0 : -1}
+        aria-label={`Previous project: ${prevTitle}`}
+      >
+        <span>{prevTitle}</span>
+      </button>
+
+      <article className="detail-card">
         <button className="overlay-x detail-x" onClick={onClose} aria-label="Close project" tabIndex={open ? 0 : -1}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
             <path d="M6 6l12 12M18 6L6 18" />
           </svg>
         </button>
         {project && (
-          <div className="detail-grid" ref={gridRef}>
+          <div className="detail-grid">
             <div className="detail-left">
-              <div className="detail-meta">
-                <span className="detail-pill">{project.category}</span>
-                <span className="detail-year">{project.year}</span>
-                <span className="detail-pill ghost">{project.role}</span>
-              </div>
               <h1>{project.title}</h1>
               <p className="detail-tagline">{project.tagline}</p>
-              <div className="detail-overview">
-                {project.overview.map((para) => (
-                  <p key={para}>{para}</p>
-                ))}
-              </div>
               <div className="detail-tools">
                 {project.tools.map((tool) => (
                   <span key={tool}>{tool}</span>
                 ))}
               </div>
             </div>
-            <div className="detail-imgs">
-              {project.pages.map((pg) => (
-                <EmptyFrame key={pg.id} cap={pg.cap} ph={pg.ph} />
-              ))}
+            <div className="detail-imgs" ref={imgsRef}>
+              <div ref={imgsInnerRef}>
+                {project.pages.map((pg) => (
+                  <EmptyFrame key={pg.id} cap={pg.cap} ph={pg.ph} />
+                ))}
+              </div>
             </div>
           </div>
         )}
-        </div>
-      </div>
+      </article>
+
+      <button
+        className="detail-peek next"
+        onClick={() => onSwitch(1)}
+        tabIndex={open ? 0 : -1}
+        aria-label={`Next project: ${nextTitle}`}
+      >
+        <span>{nextTitle}</span>
+      </button>
     </div>
   );
 }

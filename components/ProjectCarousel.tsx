@@ -23,10 +23,10 @@ type Props = {
   onOpen: (index: number) => void;
 };
 
-const SCREEN_W = 5.35;
-const SCREEN_H = 3.28;
-const RADIUS = 8.2;
-const STEP = 0.4;
+const SCREEN_W = 3.15;
+const SCREEN_H = 1.95;
+const RADIUS = 9.6;
+const STEP = 0.62;
 const SEG_X = 36;
 const SEG_Y = 18;
 
@@ -59,56 +59,28 @@ function makeLabelTexture(p: Project) {
   if (!ctx) return new THREE.CanvasTexture(c);
 
   const g = ctx.createLinearGradient(0, 0, 1280, 800);
-  g.addColorStop(0, "#101a3c");
-  g.addColorStop(0.55, "#0b132c");
-  g.addColorStop(1, "#15102e");
+  g.addColorStop(0, "#3a3a3a");
+  g.addColorStop(1, "#222222");
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, 1280, 800);
 
-  const vg = ctx.createRadialGradient(640, 400, 40, 640, 400, 720);
-  vg.addColorStop(0, "rgba(43,71,255,0.18)");
-  vg.addColorStop(1, "rgba(0,0,0,0)");
-  ctx.fillStyle = vg;
-  ctx.fillRect(0, 0, 1280, 800);
-
-  ctx.fillStyle = "#8fe9f2";
-  roundRect(ctx, 520, 210, 240, 44, 22);
-  ctx.fill();
-  ctx.fillStyle = "#12193b";
-  ctx.font = "700 22px 'Plus Jakarta Sans', system-ui, sans-serif";
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "600 22px 'Plus Jakarta Sans', system-ui, sans-serif";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText(p.category.toUpperCase(), 640, 232);
+  ctx.fillText(p.year, 640, 250);
 
-  ctx.fillStyle = "#f3f4ff";
   ctx.font = "600 118px 'Tusker Grotesk', 'Plus Jakarta Sans', sans-serif";
   ctx.fillText(p.title, 640, 400);
 
-  ctx.fillStyle = "#9aa6cc";
+  ctx.fillStyle = "#cccccc";
   ctx.font = "600 28px 'Plus Jakarta Sans', system-ui, sans-serif";
-  ctx.fillText(`${p.year}  ·  ${p.role}`, 640, 490);
+  ctx.fillText(p.role, 640, 490);
 
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.anisotropy = 8;
   return tex;
-}
-
-function roundRect(
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  r: number,
-) {
-  ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.arcTo(x + w, y, x + w, y + h, r);
-  ctx.arcTo(x + w, y + h, x, y + h, r);
-  ctx.arcTo(x, y + h, x, y, r);
-  ctx.arcTo(x, y, x + w, y, r);
-  ctx.closePath();
 }
 
 const VERT = /* glsl */ `
@@ -260,7 +232,7 @@ function CurvedScreen({
 function Rig() {
   const { size } = useThree();
   useFrame(({ camera }) => {
-    const z = size.width < 680 ? 8.4 : 6.35;
+    const z = size.width < 680 ? 12.4 : 10.4;
     camera.position.set(0, 0.72, z);
     camera.lookAt(0, 0.05, 0);
   });
@@ -370,7 +342,7 @@ const ProjectCarousel = forwardRef<ProjectCarouselHandle, Props>(function Projec
       e.preventDefault();
       const motion = motionRef.current;
       motion.snap = null;
-      motion.vel += (e.deltaY + e.deltaX) * 0.00135;
+      motion.vel += (e.deltaY + e.deltaX) * 0.00032;
     };
 
     const onMove = (e: PointerEvent) => {
@@ -378,8 +350,8 @@ const ProjectCarousel = forwardRef<ProjectCarouselHandle, Props>(function Projec
       if (!motion.dragging) return;
       const dx = e.clientX - motion.lastX;
       if (Math.abs(dx) > 4) motion.moved = true;
-      motion.rot -= dx / 340;
-      motion.vel = -dx / 340;
+      motion.rot -= dx / 1100;
+      motion.vel = -dx / 1100;
       motion.lastX = e.clientX;
     };
     const onUp = () => {
@@ -421,25 +393,25 @@ const ProjectCarousel = forwardRef<ProjectCarouselHandle, Props>(function Projec
         dpr={[1, 1.75]}
         gl={{ antialias: true, alpha: false, powerPreference: "high-performance" }}
         onCreated={({ gl }) => {
-          gl.setClearColor("#070d24", 1);
+          gl.setClearColor("#222222", 1);
         }}
       >
-        <color attach="background" args={["#070d24"]} />
-        <fog attach="fog" args={["#070d24", 10, 28]} />
-        <PerspectiveCamera makeDefault fov={32} position={[0, 0.72, 6.35]} />
-        <ambientLight intensity={0.55} />
+        <color attach="background" args={["#222222"]} />
+        <fog attach="fog" args={["#222222", 12, 32]} />
+        <PerspectiveCamera makeDefault fov={32} position={[0, 0.72, 10.4]} />
+        <ambientLight intensity={0.7} />
         <Rig />
         <Grid
-          position={[0, -SCREEN_H / 2 - 0.28, 0]}
+          position={[0, -SCREEN_H / 2 - 0.45, 0]}
           args={[40, 40]}
           cellSize={0.55}
-          cellThickness={0.55}
-          cellColor="#1c2a52"
+          cellThickness={0.4}
+          cellColor="#333333"
           sectionSize={2.75}
-          sectionThickness={1.05}
-          sectionColor="#4a5d92"
-          fadeDistance={22}
-          fadeStrength={1.6}
+          sectionThickness={0.85}
+          sectionColor="#4a4a4a"
+          fadeDistance={24}
+          fadeStrength={1.8}
           infiniteGrid
         />
         <CarouselWorld projects={projects} paused={paused} onOpen={onOpen} motionRef={motionRef} />
