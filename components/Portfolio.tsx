@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Loader from "./Loader";
 import LogoIcon from "./LogoIcon";
 import ProfilePanel from "./ProfilePanel";
-import ProjectDetail from "./ProjectDetail";
+import ProjectDetail, { type ProjectDetailHandle } from "./ProjectDetail";
 import { projects } from "@/lib/projects";
 import type { ProjectCarouselHandle } from "./ProjectCarousel";
 
@@ -18,6 +18,7 @@ export default function Portfolio() {
   const detailOpen = detailIdx != null;
 
   const carouselRef = useRef<ProjectCarouselHandle>(null);
+  const detailRef = useRef<ProjectDetailHandle>(null);
   const cursorRef = useRef<HTMLDivElement | null>(null);
   const cursorDotRef = useRef<HTMLDivElement | null>(null);
   const loadingRef = useRef(true);
@@ -118,8 +119,8 @@ export default function Portfolio() {
         return;
       }
       if (detailOpenRef.current) {
-        if (e.key === "ArrowLeft") switchDetail(-1);
-        if (e.key === "ArrowRight") switchDetail(1);
+        if (e.key === "ArrowLeft") detailRef.current?.navigate(-1);
+        if (e.key === "ArrowRight") detailRef.current?.navigate(1);
         return;
       }
       if (profileOpenRef.current) return;
@@ -187,6 +188,7 @@ export default function Portfolio() {
 
       <ProfilePanel open={profileOpen} onClose={closeProfile} />
       <ProjectDetail
+        ref={detailRef}
         project={dv}
         open={detailOpen}
         onClose={closeDetail}

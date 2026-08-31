@@ -23,10 +23,10 @@ type Props = {
   onOpen: (index: number) => void;
 };
 
-const SCREEN_W = 3.15;
-const SCREEN_H = 1.95;
-const RADIUS = 9.6;
-const STEP = 0.62;
+const SCREEN_W = 4.85;
+const SCREEN_H = 2.95;
+const RADIUS = 7.6;
+const STEP = 0.348;
 const SEG_X = 36;
 const SEG_Y = 18;
 
@@ -232,7 +232,7 @@ function CurvedScreen({
 function Rig() {
   const { size } = useThree();
   useFrame(({ camera }) => {
-    const z = size.width < 680 ? 12.4 : 10.4;
+    const z = size.width < 680 ? 9.6 : 7.35;
     camera.position.set(0, 0.72, z);
     camera.lookAt(0, 0.05, 0);
   });
@@ -257,12 +257,12 @@ function CarouselWorld({
   useFrame((_, dt) => {
     if (paused) return;
     const motion = motionRef.current;
-    const damp = Math.exp(-dt * 7.2);
+    const damp = Math.exp(-dt * 4.2);
     if (motion.dragging) return;
 
     if (motion.snap != null) {
       const d = motion.snap - motion.rot;
-      motion.rot += d * Math.min(1, dt * 10);
+      motion.rot += d * Math.min(1, dt * 5.2);
       motion.vel = 0;
       if (Math.abs(d) < 0.003) {
         motion.rot = motion.snap;
@@ -274,10 +274,10 @@ function CarouselWorld({
     motion.vel *= damp;
     motion.rot += motion.vel;
 
-    if (Math.abs(motion.vel) < 0.004) {
+    if (Math.abs(motion.vel) < 0.0025) {
       const nearest = Math.round(motion.rot);
       const d = nearest - motion.rot;
-      motion.rot += d * Math.min(1, dt * 8.5);
+      motion.rot += d * Math.min(1, dt * 4.8);
       if (Math.abs(d) < 0.002) motion.rot = nearest;
     }
 
@@ -342,7 +342,7 @@ const ProjectCarousel = forwardRef<ProjectCarouselHandle, Props>(function Projec
       e.preventDefault();
       const motion = motionRef.current;
       motion.snap = null;
-      motion.vel += (e.deltaY + e.deltaX) * 0.00032;
+      motion.vel += (e.deltaY + e.deltaX) * 0.00007;
     };
 
     const onMove = (e: PointerEvent) => {
@@ -350,8 +350,8 @@ const ProjectCarousel = forwardRef<ProjectCarouselHandle, Props>(function Projec
       if (!motion.dragging) return;
       const dx = e.clientX - motion.lastX;
       if (Math.abs(dx) > 4) motion.moved = true;
-      motion.rot -= dx / 1100;
-      motion.vel = -dx / 1100;
+      motion.rot -= dx / 2800;
+      motion.vel = -dx / 2800;
       motion.lastX = e.clientX;
     };
     const onUp = () => {
@@ -398,7 +398,7 @@ const ProjectCarousel = forwardRef<ProjectCarouselHandle, Props>(function Projec
       >
         <color attach="background" args={["#222222"]} />
         <fog attach="fog" args={["#222222", 12, 32]} />
-        <PerspectiveCamera makeDefault fov={32} position={[0, 0.72, 10.4]} />
+        <PerspectiveCamera makeDefault fov={32} position={[0, 0.72, 7.35]} />
         <ambientLight intensity={0.7} />
         <Rig />
         <Grid
