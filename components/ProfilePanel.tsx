@@ -21,7 +21,8 @@ export default function ProfilePanel({ open, onClose }: ProfilePanelProps) {
             <path d="M6 6l12 12M18 6L6 18" />
           </svg>
         </button>
-        <div className="profile-copy">
+        <div className="profile-card-body">
+          <div className="profile-copy">
           <h2 id="profile-name">{NAME}</h2>
           <p className="profile-role">Software developer · Web designer</p>
           <div className="profile-bio">
@@ -45,10 +46,11 @@ export default function ProfilePanel({ open, onClose }: ProfilePanelProps) {
             </a>
           </div>
           <a href="#" className="btn-resume">Resume</a>
-        </div>
-        <div className="profile-portrait" aria-hidden="true">
-          {/* eslint-disable-next-line @next/next/no-img-element -- decorative cutout, sized by CSS */}
-          <img src="/hero-character.png" alt="" />
+          </div>
+          <div className="profile-portrait" aria-hidden="true">
+            {/* eslint-disable-next-line @next/next/no-img-element -- decorative cutout, sized by CSS */}
+            <img src="/hero-character.png" alt="" />
+          </div>
         </div>
       </div>
     </div>
