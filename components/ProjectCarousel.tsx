@@ -9,8 +9,8 @@ import {
   useRef,
   type RefObject,
 } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Grid, PerspectiveCamera } from "@react-three/drei";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { Grid, PerspectiveCamera, useVideoTexture } from "@react-three/drei";
 import * as THREE from "three";
 import type { Project } from "@/lib/projects";
 
@@ -51,38 +51,6 @@ function bentGeometry() {
   pos.needsUpdate = true;
   geo.computeVertexNormals();
   return geo;
-}
-
-function makeLabelTexture(p: Project) {
-  const c = document.createElement("canvas");
-  c.width = 1280;
-  c.height = 800;
-  const ctx = c.getContext("2d");
-  if (!ctx) return new THREE.CanvasTexture(c);
-
-  const g = ctx.createLinearGradient(0, 0, 1280, 800);
-  g.addColorStop(0, "#3a3a3a");
-  g.addColorStop(1, "#222222");
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, 1280, 800);
-
-  ctx.fillStyle = "#ffffff";
-  ctx.font = "600 22px 'Plus Jakarta Sans', system-ui, sans-serif";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText(p.year, 640, 250);
-
-  ctx.font = "600 118px 'Tusker Grotesk', 'Plus Jakarta Sans', sans-serif";
-  ctx.fillText(p.title, 640, 400);
-
-  ctx.fillStyle = "#cccccc";
-  ctx.font = "600 28px 'Plus Jakarta Sans', system-ui, sans-serif";
-  ctx.fillText(p.role, 640, 490);
-
-  const tex = new THREE.CanvasTexture(c);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  tex.anisotropy = 8;
-  return tex;
 }
 
 const VERT = /* glsl */ `
@@ -160,9 +128,12 @@ function CurvedScreen({
   const hover = useRef(0);
   const mouse = useRef(new THREE.Vector2(0.5, 0.5));
   const matRef = useRef<THREE.ShaderMaterial>(null);
-
-  const texture = useMemo(() => makeLabelTexture(project), [project]);
-  useEffect(() => () => texture.dispose(), [texture]);
+  const texture = useVideoTexture(project.previewVideo, {
+    muted: true,
+    loop: true,
+    playsInline: true,
+    start: false,
+  });
 
   const uniforms = useMemo(
     () => ({
@@ -184,7 +155,14 @@ function CurvedScreen({
       mesh.current.visible = Math.abs(off) < 2.35;
     }
     hover.current += (hoverT.current - hover.current) * 0.14;
+    const video = texture.image as HTMLVideoElement;
+    const shouldPlay = !paused && Math.abs(off) < 0.85;
+    if (video) {
+      if (shouldPlay && video.paused) video.play().catch(() => {});
+      else if (!shouldPlay && !video.paused) video.pause();
+    }
     if (matRef.current) {
+      matRef.current.uniforms.uMap.value.needsUpdate = true;
       matRef.current.uniforms.uHover.value = hover.current;
       matRef.current.uniforms.uMouse.value.copy(mouse.current);
       const abs = Math.abs(off);
@@ -232,18 +210,14 @@ function CurvedScreen({
 }
 
 function Rig() {
-  const { size } = useThree();
-  const last = useRef({ mobile: false, z: 0 });
+  const init = useRef(false);
   useFrame(({ camera }) => {
-    const mobile = size.width < 680;
-    const z = mobile ? 10.8 : 7.7;
-    if (last.current.mobile !== mobile || last.current.z !== z) {
-      camera.position.set(0, mobile ? 0.58 : 0.72, z);
-      if ("fov" in camera) camera.fov = mobile ? 36 : 32;
-      camera.lookAt(0, 0.05, 0);
-      camera.updateProjectionMatrix();
-      last.current = { mobile, z };
-    }
+    if (init.current) return;
+    camera.position.set(0, 0.72, 7.7);
+    if ("fov" in camera) camera.fov = 32;
+    camera.lookAt(0, 0.05, 0);
+    camera.updateProjectionMatrix();
+    init.current = true;
   });
   return null;
 }
@@ -408,10 +382,7 @@ const ProjectCarousel = forwardRef<ProjectCarouselHandle, Props>(function Projec
     };
   }, []);
 
-  const dprMax = useMemo(() => {
-    if (typeof window === "undefined") return 1.75;
-    return window.matchMedia("(pointer: coarse)").matches || window.innerWidth < 680 ? 1.35 : 1.75;
-  }, []);
+  const dprMax = 1.75;
 
   return (
     <div ref={wrapRef} className="carousel-stage">
@@ -434,13 +405,13 @@ const ProjectCarousel = forwardRef<ProjectCarouselHandle, Props>(function Projec
           position={[0, -SCREEN_H / 2 - 0.45, 0]}
           args={[40, 40]}
           cellSize={0.55}
-          cellThickness={0.72}
-          cellColor="#666666"
+          cellThickness={0.42}
+          cellColor="#333333"
           sectionSize={2.75}
-          sectionThickness={1.25}
-          sectionColor="#9a9a9a"
-          fadeDistance={30}
-          fadeStrength={1.05}
+          sectionThickness={0.72}
+          sectionColor="#3d3d3d"
+          fadeDistance={24}
+          fadeStrength={1.65}
           infiniteGrid
         />
         <CarouselWorld projects={projects} paused={paused} onOpen={onOpen} motionRef={motionRef} />

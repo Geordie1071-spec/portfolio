@@ -7,6 +7,7 @@ export type Project = {
   category: string;
   role: string;
   tagline: string;
+  previewVideo: string;
   stats: ProjectStat[];
   overview: string[];
   tools: string[];
@@ -21,6 +22,7 @@ export const projects: Project[] = [
     role: "Solo build",
     tagline:
       "An agent pipeline that turns WhatsApp briefings into designed web proposals.",
+    previewVideo: "/uploads/previews/blirk.mp4",
     stats: [
       { n: "95", c: "Proposals / 2 mo" },
       { n: "−90%", c: "Time per proposal" },
@@ -45,6 +47,7 @@ export const projects: Project[] = [
     role: "Design + Front-end",
     tagline:
       "A gamified leaderboard and rewards layer that built a daily habit for thousands.",
+    previewVideo: "/uploads/previews/champ.mp4",
     stats: [
       { n: "4.2k", c: "Active members" },
       { n: "+38%", c: "D30 retention" },
@@ -68,6 +71,7 @@ export const projects: Project[] = [
     role: "ML + Data",
     tagline:
       "A model that ingests live odds and form data to surface value bets across five leagues.",
+    previewVideo: "/uploads/previews/odds.mp4",
     stats: [
       { n: "5", c: "Leagues covered" },
       { n: "71%", c: "Hit rate" },
@@ -90,6 +94,7 @@ export const projects: Project[] = [
     category: "Product Design",
     role: "UX + Research",
     tagline: "An end-to-end UX redesign of a clinical intake tool for busy nurses.",
+    previewVideo: "/uploads/previews/clinic.mp4",
     stats: [
       { n: "−44%", c: "Intake time" },
       { n: "9", c: "Screens shipped" },

@@ -7,9 +7,9 @@ import LogoIcon from "./LogoIcon";
 import ProfilePanel from "./ProfilePanel";
 import ProjectDetail, { type ProjectDetailHandle } from "./ProjectDetail";
 import { projects } from "@/lib/projects";
-import type { ProjectCarouselHandle } from "./ProjectCarousel";
+import type { ProjectDeckHandle } from "./ProjectDeck";
 
-const ProjectCarousel = dynamic(() => import("./ProjectCarousel"), { ssr: false });
+const ProjectDeck = dynamic(() => import("./ProjectDeck"), { ssr: false });
 
 export default function Portfolio() {
   const [loading, setLoading] = useState(true);
@@ -17,7 +17,7 @@ export default function Portfolio() {
   const [detailIdx, setDetailIdx] = useState<number | null>(null);
   const detailOpen = detailIdx != null;
 
-  const carouselRef = useRef<ProjectCarouselHandle>(null);
+  const carouselRef = useRef<ProjectDeckHandle>(null);
   const detailRef = useRef<ProjectDetailHandle>(null);
   const cursorRef = useRef<HTMLDivElement | null>(null);
   const cursorDotRef = useRef<HTMLDivElement | null>(null);
@@ -43,7 +43,9 @@ export default function Portfolio() {
   }, []);
 
   useEffect(() => {
+    void import("./ProjectDeck");
     void import("./ProjectCarousel");
+    void import("./ProjectStack");
   }, []);
 
   const closeOverlays = useCallback(() => {
@@ -193,7 +195,7 @@ export default function Portfolio() {
       </header>
 
       <div className={`deck-inset${profileOpen ? " is-dimmed" : ""}`}>
-        <ProjectCarousel
+        <ProjectDeck
           ref={carouselRef}
           projects={projects}
           paused={overlayUp || loading}

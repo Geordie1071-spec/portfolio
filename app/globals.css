@@ -113,6 +113,65 @@ button {
   height: 100% !important;
 }
 
+.project-stack {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+.project-stack::-webkit-scrollbar {
+  display: none;
+}
+.project-stack-inner {
+  position: relative;
+  min-height: 100%;
+  padding: clamp(88px, 16vh, 120px) 18px clamp(52px, 11vh, 84px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.project-stack-card {
+  position: relative;
+  width: min(88vw, 360px);
+  aspect-ratio: 16 / 10;
+  border: 1.5px solid rgba(255, 255, 255, 0.88);
+  border-radius: 14px;
+  overflow: hidden;
+  background: #222;
+  padding: 0;
+  cursor: pointer;
+  box-shadow: 0 22px 44px rgba(0, 0, 0, 0.38);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.32, 1), box-shadow 0.3s ease;
+}
+.project-stack-card:nth-child(4n + 1) {
+  transform: translateX(-16px) rotate(-2.4deg);
+}
+.project-stack-card:nth-child(4n + 2) {
+  transform: translateX(18px) rotate(2deg);
+}
+.project-stack-card:nth-child(4n + 3) {
+  transform: translateX(-8px) rotate(-1.2deg);
+}
+.project-stack-card:nth-child(4n) {
+  transform: translateX(12px) rotate(1.6deg);
+}
+.project-stack-card + .project-stack-card {
+  margin-top: -52px;
+}
+.project-stack-card video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+.project-stack-card:active {
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.32);
+}
+
 /* ===================== chrome ===================== */
 .site-chrome {
   position: fixed;
