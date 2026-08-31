@@ -34,7 +34,7 @@ export const projects: Project[] = [
     pages: [
       { id: "blirk-p1", ph: "Briefing intake screen", cap: "Briefing intake — paste and parse" },
       { id: "blirk-p2", ph: "Block selection view", cap: "Automated block selection" },
-      { id: "blirk-p3", ph: "Generated proposal", cap: "Generated proposal, editable", img: "/uploads/blirk-p3.webp" },
+      { id: "blirk-p3", ph: "Generated proposal", cap: "Generated proposal, editable" },
       { id: "blirk-p4", ph: "Analytics dashboard", cap: "Delivery & engagement analytics" },
     ],
   },
