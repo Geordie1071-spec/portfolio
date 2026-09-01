@@ -7,104 +7,112 @@ export type Project = {
   category: string;
   role: string;
   tagline: string;
+  previewVideo: string;
   stats: ProjectStat[];
   overview: string[];
   tools: string[];
   pages: ProjectPage[];
 };
 
+const frame = (id: string, ph: string, cap: string) => ({
+  id,
+  ph,
+  cap,
+  img: `/uploads/frames/${id}.jpg`,
+});
+
+/** Placeholder projects sourced from realstoman/nextjs-tailwindcss-portfolio (MIT) */
 export const projects: Project[] = [
   {
-    year: "2026",
-    title: "BLIRK",
-    category: "AI Pipeline",
-    role: "Solo build",
-    tagline:
-      "An agent pipeline that turns WhatsApp briefings into designed web proposals.",
+    year: "2021",
+    title: "Google Health",
+    category: "Web Application",
+    role: "UI / Frontend",
+    tagline: "A healthcare platform UI focused on clarity, accessibility, and patient-first workflows.",
+    previewVideo: "/uploads/previews/health.mp4",
     stats: [
-      { n: "95", c: "Proposals / 2 mo" },
-      { n: "−90%", c: "Time per proposal" },
-      { n: "14", c: "Blocks ← 130+ designs" },
+      { n: "6", c: "Core screens" },
+      { n: "WCAG", c: "AA target" },
+      { n: "Vue", c: "Component library" },
     ],
     overview: [
-      "BLIRK compresses what used to be a 27-minute manual handoff into a 1–4 minute automated flow. Sales pastes a WhatsApp briefing; the pipeline parses intent, selects layout blocks and returns a fully designed, editable web proposal.",
-      "The system distilled 130+ historical designs into 14 reusable blocks, so every generated proposal stays on-brand while remaining flexible enough for last-mile edits.",
+      "End-to-end UI for a health platform spanning intake, records, and provider dashboards — designed for high-trust, low-friction interactions.",
     ],
-    tools: ["Python", "LangChain", "OpenAI API", "React", "Node.js", "Postgres"],
+    tools: ["Vue.js", "Tailwind CSS", "Adobe XD", "JavaScript", "HTML", "CSS"],
     pages: [
-      { id: "blirk-p1", ph: "Briefing intake screen", cap: "Briefing intake — paste and parse" },
-      { id: "blirk-p2", ph: "Block selection view", cap: "Automated block selection" },
-      { id: "blirk-p3", ph: "Generated proposal", cap: "Generated proposal, editable", img: "/uploads/blirk-p3.webp" },
-      { id: "blirk-p4", ph: "Analytics dashboard", cap: "Delivery & engagement analytics" },
+      frame("health-p1", "Dashboard overview", "Patient dashboard — overview"),
+      frame("health-p2", "Web portal", "Provider web portal"),
+      frame("health-p3", "Mobile companion", "Mobile health companion"),
+      frame("health-p4", "Design system", "UI kit & components"),
     ],
   },
   {
-    year: "2025",
-    title: "CHAMP",
-    category: "Web App",
-    role: "Design + Front-end",
-    tagline:
-      "A gamified leaderboard and rewards layer that built a daily habit for thousands.",
+    year: "2021",
+    title: "Phoenix Agency",
+    category: "Mobile Application",
+    role: "UI Design",
+    tagline: "A digital agency app showcasing services, case studies, and client onboarding on mobile.",
+    previewVideo: "/uploads/previews/phoenix.mp4",
     stats: [
-      { n: "4.2k", c: "Active members" },
-      { n: "+38%", c: "D30 retention" },
-      { n: "12", c: "Reward tiers" },
+      { n: "4", c: "App flows" },
+      { n: "iOS", c: "+ Android" },
+      { n: "Figma", c: "Handoff" },
     ],
     overview: [
-      "CHAMP turned one-off signups into a daily ritual with streaks, tiered rewards and a live leaderboard. The core loop was tuned around a single question: what makes someone come back tomorrow?",
-      "A motion-rich reward reveal and clear progress states pushed 30-day retention up 38% within the first quarter after launch.",
+      "Mobile-first agency experience with bold typography, service discovery, and portfolio browsing built for thumb-friendly navigation.",
     ],
-    tools: ["React", "TypeScript", "Framer Motion", "Node.js", "Redis"],
+    tools: ["Figma", "Vue.js", "Tailwind CSS", "JavaScript"],
     pages: [
-      { id: "champ-p1", ph: "Leaderboard screen", cap: "Live leaderboard" },
-      { id: "champ-p2", ph: "Rewards / tiers screen", cap: "Reward tiers & progress" },
-      { id: "champ-p3", ph: "Streak reveal", cap: "Streak reveal animation" },
+      frame("phoenix-p1", "Home screen", "Agency home — services hero"),
+      frame("phoenix-p2", "Case studies", "Case study grid"),
+      frame("phoenix-p3", "Web showcase", "Responsive web showcase"),
+      frame("phoenix-p4", "Onboarding", "Client onboarding flow"),
     ],
   },
   {
-    year: "2025",
-    title: "ODDS",
-    category: "ML Model",
-    role: "ML + Data",
-    tagline:
-      "A model that ingests live odds and form data to surface value bets across five leagues.",
+    year: "2021",
+    title: "Cloud Storage",
+    category: "Web Application",
+    role: "Frontend Dev",
+    tagline: "A cloud storage dashboard for uploading, organizing, and sharing files across devices.",
+    previewVideo: "/uploads/previews/cloud.mp4",
     stats: [
-      { n: "5", c: "Leagues covered" },
-      { n: "71%", c: "Hit rate" },
-      { n: "900k", c: "Rows / day" },
+      { n: "3", c: "Platforms" },
+      { n: "Sync", c: "Real-time" },
+      { n: "Vue", c: "SPA" },
     ],
     overview: [
-      "ODDS pulls live market prices and historical form, engineers features on the fly and ranks fixtures by expected value. The pipeline ingests roughly 900k rows daily and refreshes predictions in near real time.",
-      "A calibrated gradient-boosted model reached a 71% directional hit rate in backtesting across five leagues, wrapped in a clean dashboard for quick daily review.",
+      "Storage platform UI with folder hierarchy, upload progress, and share links — optimized for quick file retrieval and team collaboration.",
     ],
-    tools: ["Python", "scikit-learn", "XGBoost", "Pandas", "FastAPI"],
+    tools: ["Vue.js", "Tailwind CSS", "Node.js", "JavaScript"],
     pages: [
-      { id: "odds-p1", ph: "Value bets dashboard", cap: "Daily value board" },
-      { id: "odds-p2", ph: "Fixture detail", cap: "Fixture breakdown" },
-      { id: "odds-p3", ph: "Model performance", cap: "Backtest performance" },
+      frame("cloud-p1", "File browser", "File browser — grid view"),
+      frame("cloud-p2", "Upload flow", "Drag-and-drop upload"),
+      frame("cloud-p3", "Mobile access", "Mobile file access"),
+      frame("cloud-p4", "Share panel", "Share & permissions"),
     ],
   },
   {
-    year: "2024",
-    title: "CLINIC",
-    category: "Product Design",
-    role: "UX + Research",
-    tagline: "An end-to-end UX redesign of a clinical intake tool for busy nurses.",
+    year: "2021",
+    title: "WeTalk",
+    category: "Social Application",
+    role: "Full Stack",
+    tagline: "A social messaging app with profiles, chat threads, and media sharing.",
+    previewVideo: "/uploads/previews/wetalk.mp4",
     stats: [
-      { n: "−44%", c: "Intake time" },
-      { n: "9", c: "Screens shipped" },
-      { n: "3", c: "Clinics live" },
+      { n: "10k", c: "Beta users" },
+      { n: "Real-time", c: "Messaging" },
+      { n: "4", c: "Platforms" },
     ],
     overview: [
-      "CLINIC reworked the pre-appointment intake flow nurses run dozens of times a day. Field research surfaced the redundant steps; the redesign collapsed them into a focused, error-resistant sequence.",
-      "The rebuilt flow cut average intake time by 44% and is now live in three clinics across nine shipped screens.",
+      "Social chat product spanning mobile and web — focused on fast messaging, rich media, and a clean profile experience.",
     ],
-    tools: ["Figma", "React", "TypeScript", "FHIR", "Playwright"],
+    tools: ["React", "Node.js", "MongoDB", "Socket.io", "Tailwind CSS"],
     pages: [
-      { id: "clinic-p1", ph: "Patient lookup", cap: "Patient lookup" },
-      { id: "clinic-p2", ph: "Intake form", cap: "Streamlined intake form" },
-      { id: "clinic-p3", ph: "Review & confirm", cap: "Review & confirm" },
-      { id: "clinic-p4", ph: "Nurse dashboard", cap: "Shift dashboard" },
+      frame("wetalk-p1", "Chat list", "Conversations inbox"),
+      frame("wetalk-p2", "Profile UI", "User profile screen"),
+      frame("wetalk-p3", "Web client", "Web messaging client"),
+      frame("wetalk-p4", "Media share", "Media sharing flow"),
     ],
   },
 ];
