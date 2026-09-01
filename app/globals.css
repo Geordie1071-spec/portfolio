@@ -1157,6 +1157,21 @@ button {
     border-radius: 18px;
     min-height: 0;
   }
+  .detail-card.is-mobile {
+    position: relative;
+  }
+  .detail-card.is-mobile .detail-x-fixed {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 12;
+    width: 48px;
+    height: 48px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.18);
+  }
+  .detail-card.is-mobile .detail-left-head {
+    padding-right: 52px;
+  }
   .detail-card.is-mobile .detail-card-scroll {
     overflow-y: auto;
     overflow-x: hidden;
@@ -1198,10 +1213,6 @@ button {
   .detail-overview p {
     font-size: 13px;
     line-height: 1.55;
-  }
-  .detail-x {
-    width: 48px;
-    height: 48px;
   }
   .detail-meta {
     flex-wrap: nowrap;
