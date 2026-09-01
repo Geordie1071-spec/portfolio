@@ -65,12 +65,78 @@ function EmptyFrame({ cap, ph, img }: { cap: string; ph: string; img?: string })
 
 const INFINITE_COPIES = 2;
 
-function DetailFrames({ pages, copy }: { pages: ProjectPage[]; copy: number }) {
+function DetailLeft({
+  project,
+  summary,
+  open,
+  onClose,
+  showClose,
+}: {
+  project: Project;
+  summary?: string;
+  open: boolean;
+  onClose: () => void;
+  showClose: boolean;
+}) {
   return (
-    <div className="detail-imgs-cycle" data-cycle={copy}>
-      {pages.map((pg) => (
-        <EmptyFrame key={`${copy}-${pg.id}`} cap={pg.cap} ph={pg.ph} img={pg.img} />
-      ))}
+    <div className="detail-left">
+      <div className="detail-left-head">
+        <h1>{project.title}</h1>
+        {showClose && (
+          <button className="overlay-x detail-x" onClick={onClose} aria-label="Close project" tabIndex={open ? 0 : -1}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round">
+              <path d="M6 6l12 12M18 6L6 18" />
+            </svg>
+          </button>
+        )}
+      </div>
+      <p className="detail-tagline">{project.tagline}</p>
+      {summary && (
+        <div className="detail-overview">
+          <p>{summary}</p>
+        </div>
+      )}
+      <div className="detail-meta">
+        <a className="detail-link" href="#" aria-label="Open live project" tabIndex={open ? 0 : -1}>
+          <span className="detail-link-icon" aria-hidden="true">
+            <svg className="detail-link-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M7 17L17 7M8 7h9v9" />
+            </svg>
+          </span>
+        </a>
+        <span className="detail-pill">{project.category}</span>
+        <span className="detail-pill">{project.year}</span>
+        <span className="detail-pill">{project.role}</span>
+      </div>
+    </div>
+  );
+}
+
+function DetailPageCycle({
+  project,
+  summary,
+  open,
+  onClose,
+  copy,
+}: {
+  project: Project;
+  summary?: string;
+  open: boolean;
+  onClose: () => void;
+  copy: number;
+}) {
+  return (
+    <div className="detail-page-cycle" data-cycle={copy}>
+      <div className="detail-grid">
+        <DetailLeft project={project} summary={summary} open={open} onClose={onClose} showClose={copy === 0} />
+        <div className="detail-imgs detail-imgs-embedded">
+          <div className="detail-imgs-stack">
+            {project.pages.map((pg) => (
+              <EmptyFrame key={`${copy}-${pg.id}`} cap={pg.cap} ph={pg.ph} img={pg.img} />
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -79,7 +145,11 @@ function FrameStack({ pages }: { pages: ProjectPage[] }) {
   return (
     <>
       {Array.from({ length: INFINITE_COPIES }, (_, copy) => (
-        <DetailFrames key={copy} pages={pages} copy={copy} />
+        <div className="detail-imgs-cycle" data-cycle={copy} key={copy}>
+          {pages.map((pg) => (
+            <EmptyFrame key={`${copy}-${pg.id}`} cap={pg.cap} ph={pg.ph} img={pg.img} />
+          ))}
+        </div>
       ))}
     </>
   );
@@ -104,7 +174,6 @@ const ProjectDetail = forwardRef<ProjectDetailHandle, ProjectDetailProps>(functi
   const openRef = useRef(open);
   const timersRef = useRef<number[]>([]);
   const isMobileRef = useRef(isMobile);
-  const jumpRef = useRef(false);
 
   const [phase, setPhase] = useState<"idle" | "out" | "in">("idle");
   const [dirClass, setDirClass] = useState<"dir-next" | "dir-prev">("dir-next");
@@ -152,15 +221,14 @@ const ProjectDetail = forwardRef<ProjectDetailHandle, ProjectDetailProps>(functi
     }
   }, []);
 
-  const cycleHeightRef = useRef(1);
-
   const measureCycle = useCallback(() => {
-    const inner = isMobileRef.current ? pageScrollInnerRef.current : imgsInnerRef.current;
+    const mobile = isMobileRef.current;
+    const inner = mobile ? pageScrollInnerRef.current : imgsInnerRef.current;
     if (!inner) return 1;
-    const cycle = inner.querySelector(".detail-imgs-cycle") as HTMLElement | null;
+    const selector = mobile ? ".detail-page-cycle" : ".detail-imgs-cycle";
+    const cycle = inner.querySelector(selector) as HTMLElement | null;
     const h = cycle?.offsetHeight ?? inner.scrollHeight / INFINITE_COPIES;
-    cycleHeightRef.current = Math.max(1, h);
-    return cycleHeightRef.current;
+    return Math.max(1, h);
   }, []);
 
   const readProgress = useCallback(() => {
@@ -172,13 +240,16 @@ const ProjectDetail = forwardRef<ProjectDetailHandle, ProjectDetailProps>(functi
     const scroll = lenis?.animatedScroll ?? wrap?.scrollTop ?? 0;
 
     if (mobile && inner && wrap) {
-      const imgs = inner.querySelector(".detail-imgs") as HTMLElement | null;
-      if (imgs) {
-        const sectionTop = imgs.offsetTop;
-        const relative = scroll - sectionTop;
+      const cycleEl = inner.querySelector(".detail-page-cycle") as HTMLElement | null;
+      const imgs = inner.querySelector(".detail-imgs-embedded") as HTMLElement | null;
+      if (cycleEl && imgs) {
+        const cycleIndex = Math.floor(scroll / cycleHeight);
+        const cycleScroll = scroll - cycleIndex * cycleHeight;
+        const imgsTop = imgs.offsetTop;
+        const relative = cycleScroll - imgsTop;
         const viewport = wrap.clientHeight;
-        const scrollable = Math.max(1, cycleHeight - viewport * 0.35);
-        const wrapped = ((relative % cycleHeight) + cycleHeight) % cycleHeight;
+        const scrollable = Math.max(1, imgs.offsetHeight - viewport * 0.25);
+        const wrapped = ((relative % scrollable) + scrollable) % scrollable;
         applyProgress(Math.min(1, Math.max(0, wrapped / scrollable)));
         return;
       }
@@ -223,7 +294,7 @@ const ProjectDetail = forwardRef<ProjectDetailHandle, ProjectDetailProps>(functi
     const lenis = new Lenis({
       wrapper,
       content,
-      infinite: !mobile,
+      infinite: true,
       syncTouch: true,
       syncTouchLerp: 0.12,
       lerp: 0.12,
@@ -242,7 +313,6 @@ const ProjectDetail = forwardRef<ProjectDetailHandle, ProjectDetailProps>(functi
     };
     rafRef.current = requestAnimationFrame(raf);
     wrapper.scrollTop = 0;
-    measureCycle();
     applyProgress(0);
 
     return () => {
@@ -250,7 +320,7 @@ const ProjectDetail = forwardRef<ProjectDetailHandle, ProjectDetailProps>(functi
       lenis.off("scroll", onScroll);
       destroyLenis();
     };
-  }, [open, project?.title, isMobile, destroyLenis, applyProgress, readProgress, measureCycle]);
+  }, [open, project?.title, isMobile, destroyLenis, applyProgress, readProgress]);
 
   useEffect(() => {
     lenisRef.current?.scrollTo(0, { immediate: true });
@@ -258,44 +328,6 @@ const ProjectDetail = forwardRef<ProjectDetailHandle, ProjectDetailProps>(functi
     if (imgsRef.current) imgsRef.current.scrollTop = 0;
     applyProgress(0);
   }, [project?.title, open, isMobile, applyProgress]);
-
-  useEffect(() => {
-    if (!isMobile || !open) return;
-    const wrap = pageScrollRef.current;
-    const inner = pageScrollInnerRef.current;
-    if (!wrap || !inner) return;
-
-    const wrapImages = () => {
-      if (jumpRef.current) return;
-      const imgs = inner.querySelector(".detail-imgs") as HTMLElement | null;
-      const cycle = inner.querySelector(".detail-imgs-cycle") as HTMLElement | null;
-      if (!imgs || !cycle) return;
-      const cycleH = cycle.offsetHeight;
-      if (cycleH <= 0) return;
-      const imgsTop = imgs.offsetTop;
-      const rel = wrap.scrollTop - imgsTop;
-      if (rel > cycleH * 1.2) {
-        jumpRef.current = true;
-        const next = wrap.scrollTop - cycleH;
-        if (lenisRef.current) lenisRef.current.scrollTo(next, { immediate: true });
-        else wrap.scrollTop = next;
-        requestAnimationFrame(() => {
-          jumpRef.current = false;
-        });
-      } else if (rel < cycleH * 0.15 && wrap.scrollTop > imgsTop + 40) {
-        jumpRef.current = true;
-        const next = wrap.scrollTop + cycleH;
-        if (lenisRef.current) lenisRef.current.scrollTo(next, { immediate: true });
-        else wrap.scrollTop = next;
-        requestAnimationFrame(() => {
-          jumpRef.current = false;
-        });
-      }
-    };
-
-    wrap.addEventListener("scroll", wrapImages, { passive: true });
-    return () => wrap.removeEventListener("scroll", wrapImages);
-  }, [isMobile, open, project?.title]);
 
   useEffect(() => {
     const mobile = isMobile;
@@ -395,41 +427,27 @@ const ProjectDetail = forwardRef<ProjectDetailHandle, ProjectDetailProps>(functi
         {project && (
           <div className="detail-card-scroll" ref={pageScrollRef}>
             <div className="detail-scroll-inner" ref={pageScrollInnerRef}>
-              <div className="detail-grid">
-                <div className="detail-left">
-                  <div className="detail-left-head">
-                    <h1>{project.title}</h1>
-                    <button className="overlay-x detail-x" onClick={handleClose} aria-label="Close project" tabIndex={open ? 0 : -1}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round">
-                        <path d="M6 6l12 12M18 6L6 18" />
-                      </svg>
-                    </button>
-                  </div>
-                  <p className="detail-tagline">{project.tagline}</p>
-                  {summary && (
-                    <div className="detail-overview">
-                      <p>{summary}</p>
+              {isMobile ? (
+                Array.from({ length: INFINITE_COPIES }, (_, copy) => (
+                  <DetailPageCycle
+                    key={copy}
+                    copy={copy}
+                    project={project}
+                    summary={summary}
+                    open={open}
+                    onClose={handleClose}
+                  />
+                ))
+              ) : (
+                <div className="detail-grid">
+                  <DetailLeft project={project} summary={summary} open={open} onClose={handleClose} showClose />
+                  <div className="detail-imgs" ref={imgsRef}>
+                    <div ref={imgsInnerRef}>
+                      <FrameStack pages={project.pages} />
                     </div>
-                  )}
-                  <div className="detail-meta">
-                    <a className="detail-link" href="#" aria-label="Open live project" tabIndex={open ? 0 : -1}>
-                      <span className="detail-link-icon" aria-hidden="true">
-                        <svg className="detail-link-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M7 17L17 7M8 7h9v9" />
-                        </svg>
-                      </span>
-                    </a>
-                    <span className="detail-pill">{project.category}</span>
-                    <span className="detail-pill">{project.year}</span>
-                    <span className="detail-pill">{project.role}</span>
                   </div>
                 </div>
-                <div className="detail-imgs" ref={imgsRef}>
-                  <div ref={imgsInnerRef}>
-                    <FrameStack pages={project.pages} />
-                  </div>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         )}

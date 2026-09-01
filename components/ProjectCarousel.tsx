@@ -344,7 +344,7 @@ const ProjectCarousel = forwardRef<ProjectCarouselHandle, Props>(function Projec
       e.preventDefault();
       const motion = motionRef.current;
       motion.snap = null;
-      motion.vel += (e.deltaY + e.deltaX) * 0.00007;
+      motion.vel += (e.deltaY + e.deltaX) * 0.00011;
     };
 
     const onMove = (e: PointerEvent) => {
@@ -352,8 +352,8 @@ const ProjectCarousel = forwardRef<ProjectCarouselHandle, Props>(function Projec
       if (!motion.dragging) return;
       const dx = e.clientX - motion.lastX;
       if (Math.abs(dx) > 4) motion.moved = true;
-      motion.rot -= dx / (coarseRef.current ? 1900 : 2800);
-      motion.vel = -dx / (coarseRef.current ? 1900 : 2800);
+      motion.rot -= dx / (coarseRef.current ? 1100 : 1600);
+      motion.vel = -dx / (coarseRef.current ? 1100 : 1600) * 1.35;
       motion.lastX = e.clientX;
     };
     const onUp = () => {
