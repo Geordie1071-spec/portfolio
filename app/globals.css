@@ -364,7 +364,7 @@ button {
 .home-title,
 .letter-morph.home-title {
   margin: 0;
-  width: min(1180px, 94vw);
+  width: max-content;
   max-width: 100%;
   display: flex;
   justify-content: center;
@@ -377,7 +377,8 @@ button {
   -webkit-font-smoothing: antialiased;
   font-size: clamp(84px, 18vw, 240px);
   line-height: 0.82;
-  letter-spacing: -0.01em;
+  /* ExtraBoldLC is condensed — keep tracking tight, not slot-padded */
+  letter-spacing: -0.055em;
   text-transform: uppercase;
   color: #fff;
   text-align: center;
@@ -391,42 +392,51 @@ button {
   justify-content: center;
   align-items: baseline;
   flex-wrap: nowrap;
-  width: 100%;
+  width: max-content;
+  max-width: 100%;
+  margin-inline: auto;
 }
 .letter-slot {
-  display: inline-block;
+  display: inline-grid;
   position: relative;
   height: 0.84em;
-  min-width: 0.52em;
+  min-width: 0;
   overflow: hidden;
   vertical-align: bottom;
+  /* Pull slots together to match condensed Thunder metrics */
+  margin-inline: -0.01em;
 }
 .letter-slot.is-space {
-  min-width: 0.28em;
-  width: 0.28em;
+  min-width: 0.22em;
+  width: 0.22em;
+  margin-inline: 0;
 }
 .letter-stack {
-  display: block;
-  position: relative;
+  display: grid;
+  grid-template: 1fr / max-content;
+  justify-items: center;
   height: 100%;
 }
 .letter-char {
+  grid-area: 1 / 1;
   display: block;
   text-align: center;
   line-height: 0.84em;
   font-family: inherit;
   font-weight: inherit;
   font-synthesis: none;
+  letter-spacing: 0; /* tracking lives on the title, not per glyph */
 }
 .letter-from {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
+  position: relative;
   transform: translateY(0);
   will-change: transform, opacity;
+  /* Keep outgoing glyph in the stack for width, but out of flow for paint layering */
+  z-index: 1;
 }
 .letter-to {
+  position: relative;
+  z-index: 2;
   transform: translateY(0);
   will-change: transform, opacity;
 }
@@ -649,8 +659,9 @@ button {
   .home-title,
   .letter-morph.home-title {
     font-size: clamp(64px, 22vw, 120px);
-    letter-spacing: -0.02em;
-    width: 100%;
+    letter-spacing: -0.06em;
+    width: max-content;
+    max-width: 100%;
   }
   .cursor-orb {
     width: 52px;
