@@ -32,6 +32,7 @@ function PortfolioShell() {
     cursorSeen: false,
     cursorHot: false,
     cursorBreak: false,
+    cursorHidden: false,
     breakT: undefined as ReturnType<typeof setTimeout> | undefined,
   }).current;
 
@@ -104,6 +105,8 @@ function PortfolioShell() {
     const onOver = (e: PointerEvent) => {
       const t = e.target as Element | null;
       const hot = !!(t && t.closest && t.closest('a,button,[role="button"],input,select,textarea'));
+      const overGallery = !!(t && t.closest && t.closest(".home-gallery"));
+      anim.cursorHidden = overGallery;
       if (hot !== anim.cursorHot) {
         anim.cursorHot = hot;
         applyCursor();
@@ -143,7 +146,7 @@ function PortfolioShell() {
         anim.cx += (anim.mx - anim.cx) * 0.24;
         anim.cy += (anim.my - anim.cy) * 0.24;
         cursorRef.current.style.transform = `translate3d(${anim.cx}px,${anim.cy}px,0)`;
-        cursorRef.current.style.opacity = anim.cursorSeen ? "1" : "0";
+        cursorRef.current.style.opacity = anim.cursorSeen && !anim.cursorHidden ? "1" : "0";
       }
       raf = requestAnimationFrame(tick);
     };
