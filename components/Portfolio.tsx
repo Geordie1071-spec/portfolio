@@ -32,7 +32,7 @@ function PortfolioShell() {
     cursorSeen: false,
     cursorHot: false,
     cursorBreak: false,
-    cursorHidden: false,
+    cursorThumb: false,
     breakT: undefined as ReturnType<typeof setTimeout> | undefined,
   }).current;
 
@@ -84,11 +84,21 @@ function PortfolioShell() {
   };
 
   const applyCursor = () => {
+    const root = cursorRef.current;
     const dot = cursorDotRef.current;
-    if (!dot) return;
-    dot.style.transform = anim.cursorBreak ? "scale(.75)" : anim.cursorHot ? "scale(1.75)" : "scale(1)";
-    dot.style.background = anim.cursorHot ? "rgba(255,255,255,.22)" : "rgba(255,255,255,.12)";
-    dot.style.borderColor = anim.cursorHot ? "#ffffff" : "rgba(255,255,255,.7)";
+    if (!root || !dot) return;
+    root.classList.toggle("is-thumb", anim.cursorThumb);
+    root.classList.toggle("is-hot", anim.cursorHot && !anim.cursorThumb);
+    root.classList.toggle("is-break", anim.cursorBreak);
+    dot.style.transform = anim.cursorBreak
+      ? "scale(.75)"
+      : anim.cursorHot && !anim.cursorThumb
+        ? "scale(1.75)"
+        : "scale(1)";
+    dot.style.background =
+      anim.cursorHot && !anim.cursorThumb ? "rgba(255,255,255,.22)" : "rgba(255,255,255,.12)";
+    dot.style.borderColor =
+      anim.cursorHot && !anim.cursorThumb ? "#ffffff" : "rgba(255,255,255,.7)";
   };
 
   useEffect(() => {
@@ -104,10 +114,14 @@ function PortfolioShell() {
     };
     const onOver = (e: PointerEvent) => {
       const t = e.target as Element | null;
-      const hot = !!(t && t.closest && t.closest('a,button,[role="button"],input,select,textarea'));
-      const overGallery = !!(t && t.closest && t.closest(".home-gallery"));
-      anim.cursorHidden = overGallery;
-      if (hot !== anim.cursorHot) {
+      const thumb = !!(t && t.closest && t.closest("[data-home-thumb]"));
+      const hot = !!(
+        t &&
+        t.closest &&
+        t.closest('a,button,[role="button"],input,select,textarea')
+      );
+      if (thumb !== anim.cursorThumb || hot !== anim.cursorHot) {
+        anim.cursorThumb = thumb;
         anim.cursorHot = hot;
         applyCursor();
       }
@@ -143,10 +157,10 @@ function PortfolioShell() {
     let raf = 0;
     const tick = () => {
       if (cursorRef.current) {
-        anim.cx += (anim.mx - anim.cx) * 0.24;
-        anim.cy += (anim.my - anim.cy) * 0.24;
+        anim.cx += (anim.mx - anim.cx) * 0.28;
+        anim.cy += (anim.my - anim.cy) * 0.28;
         cursorRef.current.style.transform = `translate3d(${anim.cx}px,${anim.cy}px,0)`;
-        cursorRef.current.style.opacity = anim.cursorSeen && !anim.cursorHidden ? "1" : "0";
+        cursorRef.current.style.opacity = anim.cursorSeen ? "1" : "0";
       }
       raf = requestAnimationFrame(tick);
     };
@@ -187,7 +201,9 @@ function PortfolioShell() {
       </header>
 
       <div className={`home-inset${profileOpen ? " is-dimmed" : ""}`}>
-        <HomeGallery projects={projects} onOpen={openDetail} onReady={onGalleryReady} />
+        <div className="home-panel">
+          <HomeGallery projects={projects} onOpen={openDetail} onReady={onGalleryReady} />
+        </div>
       </div>
 
       <ProfilePanel open={profileOpen} onClose={closeProfile} />
@@ -230,9 +246,24 @@ function PortfolioShell() {
             WebkitBackdropFilter: "blur(2px) saturate(140%)",
             backdropFilter: "blur(2px) saturate(140%)",
             boxShadow: "inset 0 1px 3px rgba(255,255,255,.5),0 2px 8px rgba(9,14,40,.45)",
-            transition: "transform .28s cubic-bezier(.34,1.56,.64,1),background .3s ease,border-color .3s ease",
+            transition:
+              "transform .28s cubic-bezier(.34,1.56,.64,1),background .3s ease,border-color .3s ease",
           }}
         />
+        <span className="cursor-orb">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M7 17L17 7M8 7h9v9" />
+          </svg>
+        </span>
       </div>
     </div>
   );

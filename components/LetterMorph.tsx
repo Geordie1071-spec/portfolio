@@ -14,6 +14,9 @@ type Slot = {
   key: string;
 };
 
+const MORPH_MS = 720;
+const STAGGER_MS = 18;
+
 function toChars(value: string, len: number) {
   const chars = Array.from(value.toUpperCase());
   while (chars.length < len) chars.push(" ");
@@ -45,9 +48,10 @@ export default function LetterMorph({ text, className }: LetterMorphProps) {
 
   useEffect(() => {
     if (settleTimer.current) clearTimeout(settleTimer.current);
+    const trailing = Math.max(0, (normalized.length - 1) * STAGGER_MS);
     settleTimer.current = setTimeout(() => {
       setSlots(buildSlots(normalized, normalized, false));
-    }, 520);
+    }, MORPH_MS + trailing + 40);
     return () => {
       if (settleTimer.current) clearTimeout(settleTimer.current);
     };
@@ -64,7 +68,7 @@ export default function LetterMorph({ text, className }: LetterMorphProps) {
           <span
             key={slot.key}
             className={`letter-slot${isSpace ? " is-space" : ""}${slot.morphing ? " is-morphing" : ""}`}
-            style={{ "--delay": `${index * 28}ms` } as CSSProperties}
+            style={{ "--delay": `${index * STAGGER_MS}ms` } as CSSProperties}
           >
             <span className="letter-stack">
               {slot.morphing ? (

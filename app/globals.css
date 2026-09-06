@@ -82,6 +82,7 @@ button {
   inset: 0;
   z-index: 2;
   background: var(--bg);
+  padding: clamp(10px, 1.35vw, 18px);
   transition:
     filter 0.55s cubic-bezier(0.5, 0, 0.15, 1),
     transform 0.55s cubic-bezier(0.5, 0, 0.15, 1);
@@ -90,6 +91,14 @@ button {
   filter: blur(16px) brightness(0.52);
   transform: scale(1.02);
   pointer-events: none;
+}
+.home-panel {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg-2);
+  border-radius: clamp(14px, 1.6vw, 22px);
 }
 
 .carousel-stage {
@@ -227,10 +236,10 @@ button {
   align-items: center;
   justify-content: space-between;
   padding:
-    max(22px, env(safe-area-inset-top, 0px))
-    max(clamp(28px, 3.8vw, 56px), env(safe-area-inset-right, 0px))
+    calc(clamp(10px, 1.35vw, 18px) + max(14px, env(safe-area-inset-top, 0px)))
+    calc(clamp(10px, 1.35vw, 18px) + max(clamp(18px, 2.6vw, 40px), env(safe-area-inset-right, 0px)))
     0
-    max(clamp(28px, 3.8vw, 56px), env(safe-area-inset-left, 0px));
+    calc(clamp(10px, 1.35vw, 18px) + max(clamp(18px, 2.6vw, 40px), env(safe-area-inset-left, 0px)));
   pointer-events: none;
   transition: opacity 0.4s ease;
 }
@@ -292,17 +301,17 @@ button {
   display: grid;
   grid-template-rows: 1fr auto;
   padding:
-    max(88px, env(safe-area-inset-top, 0px))
-    max(20px, env(safe-area-inset-right, 0px))
-    max(22px, env(safe-area-inset-bottom, 0px))
-    max(20px, env(safe-area-inset-left, 0px));
+    max(72px, env(safe-area-inset-top, 0px))
+    max(18px, env(safe-area-inset-right, 0px))
+    max(18px, env(safe-area-inset-bottom, 0px))
+    max(18px, env(safe-area-inset-left, 0px));
 }
 .home-gallery-stage {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: clamp(18px, 3.2vh, 36px);
+  gap: clamp(16px, 2.8vh, 28px);
   min-height: 0;
 }
 .home-thumbs {
@@ -322,8 +331,8 @@ button {
   border: none;
   border-radius: 8px;
   overflow: hidden;
-  background: var(--bg-2);
-  cursor: pointer;
+  background: var(--bg);
+  cursor: none;
   transition:
     flex 0.55s cubic-bezier(0.22, 1, 0.36, 1),
     transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
@@ -339,46 +348,12 @@ button {
   transform: scale(1.02);
   transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.home-thumb-veil {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, transparent 40%, rgba(0, 0, 0, 0.35));
-  opacity: 0;
-  transition: opacity 0.35s ease;
-  pointer-events: none;
-}
-.home-thumb-orb {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 42px;
-  height: 42px;
-  margin: -21px 0 0 -21px;
-  border-radius: 50%;
-  background: var(--accent);
-  color: #080808;
-  display: grid;
-  place-items: center;
-  opacity: 0;
-  transform: scale(0.55);
-  transition:
-    opacity 0.28s ease,
-    transform 0.45s cubic-bezier(0.34, 1.45, 0.64, 1);
-  pointer-events: none;
-}
 .home-thumb.is-hot {
   flex: 2.35 1 0;
   z-index: 2;
 }
 .home-thumb.is-hot img {
   transform: scale(1.08);
-}
-.home-thumb.is-hot .home-thumb-veil {
-  opacity: 1;
-}
-.home-thumb.is-hot .home-thumb-orb {
-  opacity: 1;
-  transform: scale(1);
 }
 .home-thumb.is-dim {
   opacity: 0.55;
@@ -387,21 +362,22 @@ button {
 
 .home-title {
   margin: 0;
-  width: min(1100px, 96vw);
+  width: min(980px, 94vw);
   display: flex;
   justify-content: center;
   align-items: baseline;
   gap: 0;
   font-family: "Thunder LC", "Tusker Grotesk", var(--font-heading), sans-serif;
-  font-weight: 800;
-  font-size: clamp(64px, 15.5vw, 168px);
-  line-height: 0.82;
-  letter-spacing: -0.04em;
+  font-weight: 900;
+  font-size: clamp(72px, 16.5vw, 188px);
+  line-height: 0.74;
+  letter-spacing: -0.075em;
   text-transform: uppercase;
   color: #fff;
   text-align: center;
   overflow: hidden;
   user-select: none;
+  font-stretch: condensed;
 }
 .letter-morph {
   display: flex;
@@ -413,14 +389,14 @@ button {
 .letter-slot {
   display: inline-block;
   position: relative;
-  height: 0.92em;
-  min-width: 0.42em;
+  height: 0.86em;
+  min-width: 0.34em;
   overflow: hidden;
   vertical-align: bottom;
 }
 .letter-slot.is-space {
-  min-width: 0.28em;
-  width: 0.28em;
+  min-width: 0.22em;
+  width: 0.22em;
 }
 .letter-stack {
   display: block;
@@ -430,7 +406,8 @@ button {
 .letter-char {
   display: block;
   text-align: center;
-  line-height: 0.92em;
+  line-height: 0.86em;
+  font-weight: 900;
 }
 .letter-from {
   position: absolute;
@@ -438,36 +415,42 @@ button {
   right: 0;
   top: 0;
   transform: translateY(0);
+  will-change: transform, opacity;
 }
 .letter-to {
   transform: translateY(0);
+  will-change: transform, opacity;
 }
 .letter-slot.is-morphing .letter-from {
-  animation: letter-out 0.48s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: letter-out 0.72s cubic-bezier(0.16, 1, 0.3, 1) both;
   animation-delay: var(--delay, 0ms);
 }
 .letter-slot.is-morphing .letter-to {
-  animation: letter-in 0.48s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: letter-in 0.72s cubic-bezier(0.16, 1, 0.3, 1) both;
   animation-delay: var(--delay, 0ms);
 }
 @keyframes letter-out {
   from {
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
     opacity: 1;
+    filter: blur(0);
   }
   to {
-    transform: translateY(-110%);
+    transform: translate3d(0, -92%, 0);
     opacity: 0;
+    filter: blur(1.5px);
   }
 }
 @keyframes letter-in {
   from {
-    transform: translateY(110%);
+    transform: translate3d(0, 92%, 0);
     opacity: 0;
+    filter: blur(1.5px);
   }
   to {
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
     opacity: 1;
+    filter: blur(0);
   }
 }
 
@@ -486,7 +469,7 @@ button {
   align-items: center;
   gap: 10px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  background: var(--bg-2);
+  background: var(--bg);
   color: #fff;
   border-radius: 999px;
   padding: 10px 14px 10px 10px;
@@ -518,7 +501,7 @@ button {
   gap: 8px;
   padding: 12px;
   border-radius: 16px;
-  background: var(--bg-2);
+  background: var(--bg);
   border: 1px solid rgba(255, 255, 255, 0.08);
   opacity: 0;
   pointer-events: none;
@@ -550,7 +533,7 @@ button {
   align-items: center;
   gap: 8px;
   border-radius: 999px;
-  background: var(--bg-2);
+  background: var(--bg);
   border: 1px solid rgba(255, 255, 255, 0.08);
   padding: 10px 14px;
   color: rgba(255, 255, 255, 0.78);
@@ -563,7 +546,44 @@ button {
   flex: none;
 }
 
+/* cursor follower orb — sits bottom-right of the glass cursor */
+.glass-cursor {
+  position: fixed;
+}
+.cursor-orb {
+  position: absolute;
+  right: -18px;
+  bottom: -18px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #080808;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  transform: scale(0.45) translate3d(4px, 4px, 0);
+  transition:
+    opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.42s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+.glass-cursor.is-thumb .cursor-orb {
+  opacity: 1;
+  transform: scale(1) translate3d(0, 0, 0);
+}
+.glass-cursor.is-thumb .cursor-dot {
+  opacity: 0.35;
+}
+
 @media (max-width: 720px) {
+  .home-inset {
+    padding: 8px;
+  }
+  .home-panel {
+    border-radius: 14px;
+  }
   .home-thumbs {
     width: 100%;
     height: 68px;
@@ -585,17 +605,19 @@ button {
     width: 120px;
   }
   .home-title {
-    font-size: clamp(52px, 18vw, 84px);
+    font-size: clamp(56px, 19vw, 92px);
+    letter-spacing: -0.07em;
     width: 100%;
   }
-  .home-thumb-orb {
-    width: 34px;
-    height: 34px;
-    margin: -17px 0 0 -17px;
+  .cursor-orb {
+    width: 28px;
+    height: 28px;
+    right: -14px;
+    bottom: -14px;
   }
-  .home-thumb-orb svg {
-    width: 14px;
-    height: 14px;
+  .cursor-orb svg {
+    width: 13px;
+    height: 13px;
   }
 }
 

@@ -65,10 +65,7 @@ export default function HomeGallery({ projects, onOpen, onReady }: Props) {
   return (
     <div className="home-gallery">
       <div className="home-gallery-stage">
-        <div
-          className="home-thumbs"
-          onMouseLeave={() => setActive(null)}
-        >
+        <div className="home-thumbs" onMouseLeave={() => setActive(null)}>
           {thumbs.map((thumb, i) => {
             const hot = active === i;
             return (
@@ -76,6 +73,7 @@ export default function HomeGallery({ projects, onOpen, onReady }: Props) {
                 key={thumb.key}
                 type="button"
                 className={`home-thumb${hot ? " is-hot" : ""}${active != null && !hot ? " is-dim" : ""}`}
+                data-home-thumb=""
                 onMouseEnter={() => setActive(i)}
                 onFocus={() => setActive(i)}
                 onBlur={() => setActive(null)}
@@ -84,12 +82,6 @@ export default function HomeGallery({ projects, onOpen, onReady }: Props) {
               >
                 {/* eslint-disable-next-line @next/next/no-img-element -- local project frames */}
                 <img src={thumb.src} alt="" draggable={false} />
-                <span className="home-thumb-veil" aria-hidden="true" />
-                <span className="home-thumb-orb" aria-hidden="true">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M7 17L17 7M8 7h9v9" />
-                  </svg>
-                </span>
               </button>
             );
           })}
@@ -130,7 +122,17 @@ export default function HomeGallery({ projects, onOpen, onReady }: Props) {
         </div>
 
         <div className="home-location" aria-label="Location">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
             <path d="M12 21s7-5.4 7-11a7 7 0 1 0-14 0c0 5.6 7 11 7 11z" />
             <circle cx="12" cy="10" r="2.5" />
           </svg>
