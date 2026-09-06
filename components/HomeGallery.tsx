@@ -30,7 +30,7 @@ export default function HomeGallery({ projects, onOpen, onReady }: Props) {
     const items: Thumb[] = [];
     projects.forEach((project, projectIndex) => {
       project.pages
-        .filter((page) => !!page.img)
+        .filter((page): page is typeof page & { img: string } => !!page.img)
         .slice(0, 3)
         .forEach((page) => {
           items.push({
