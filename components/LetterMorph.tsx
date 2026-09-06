@@ -1,10 +1,17 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
 
 type LetterMorphProps = {
   text: string;
   className?: string;
+  style?: CSSProperties;
 };
 
 type Slot = {
@@ -35,11 +42,13 @@ function buildSlots(fromText: string, toText: string, morphing: boolean): Slot[]
   }));
 }
 
-export default function LetterMorph({ text, className }: LetterMorphProps) {
+export default function LetterMorph({ text, className, style }: LetterMorphProps) {
   const normalized = text.toUpperCase();
   const [displayText, setDisplayText] = useState(normalized);
   const [slots, setSlots] = useState<Slot[]>(() => buildSlots("", normalized, true));
   const settleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const rootRef = useRef<HTMLSpanElement | null>(null);
+  const [fitScale, setFitScale] = useState(1);
 
   if (normalized !== displayText) {
     setDisplayText(normalized);
@@ -57,9 +66,44 @@ export default function LetterMorph({ text, className }: LetterMorphProps) {
     };
   }, [normalized]);
 
+  useLayoutEffect(() => {
+    const el = rootRef.current;
+    if (!el) return;
+
+    const fit = () => {
+      el.style.setProperty("--fit-scale", "1");
+      const parent = el.parentElement;
+      if (!parent) return;
+      const available = parent.clientWidth;
+      const needed = el.scrollWidth;
+      if (!available || !needed) {
+        setFitScale(1);
+        return;
+      }
+      // leave a little breathing room so glyphs never kiss the panel edge
+      const next = Math.min(1, (available * 0.98) / needed);
+      setFitScale(next);
+      el.style.setProperty("--fit-scale", String(next));
+    };
+
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(el);
+    if (el.parentElement) ro.observe(el.parentElement);
+    window.addEventListener("resize", fit);
+    // fonts may load late
+    document.fonts?.ready?.then(fit).catch(() => {});
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", fit);
+    };
+  }, [normalized, slots]);
+
   return (
     <span
+      ref={rootRef}
       className={`letter-morph${className ? ` ${className}` : ""}`}
+      style={{ ...style, ["--fit-scale" as string]: String(fitScale) }}
       aria-label={normalized}
     >
       {slots.map((slot, index) => {

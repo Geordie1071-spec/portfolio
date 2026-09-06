@@ -27,22 +27,16 @@ export default function HomeGallery({ projects, onOpen, onReady }: Props) {
   const [pickerOpen, setPickerOpen] = useState(false);
 
   const thumbs = useMemo<Thumb[]>(() => {
-    const items: Thumb[] = [];
-    projects.forEach((project, projectIndex) => {
-      project.pages
-        .filter((page): page is typeof page & { img: string } => !!page.img)
-        .slice(0, 3)
-        .forEach((page) => {
-          items.push({
-            key: `${project.title}-${page.id}`,
-            projectIndex,
-            title: project.title,
-            src: page.img,
-            alt: `${project.title} — ${page.cap}`,
-          });
-        });
-    });
-    return items;
+    return projects.map((project, projectIndex) => {
+      const cover = project.pages.find((page) => !!page.img);
+      return {
+        key: project.title,
+        projectIndex,
+        title: project.title,
+        src: cover?.img ?? "",
+        alt: project.title,
+      };
+    }).filter((thumb) => !!thumb.src);
   }, [projects]);
 
   const headline = active == null ? DEFAULT_TITLE : thumbs[active]?.title ?? DEFAULT_TITLE;
@@ -87,7 +81,13 @@ export default function HomeGallery({ projects, onOpen, onReady }: Props) {
           })}
         </div>
 
-        <LetterMorph text={headline} className="home-title" />
+        <LetterMorph
+          text={headline}
+          className="home-title"
+          style={{
+            fontSize: `clamp(72px, ${Math.min(24, 155 / Math.max(headline.replace(/\s/g, "").length, 1))}vw, 280px)`,
+          }}
+        />
       </div>
 
       <div className="home-dock">
