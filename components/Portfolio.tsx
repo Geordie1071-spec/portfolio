@@ -1,51 +1,49 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { AccentProvider, useAccent } from "@/lib/accent";
+import { projects } from "@/lib/projects";
+import HomeGallery from "./HomeGallery";
 import Loader from "./Loader";
 import LogoIcon from "./LogoIcon";
 import ProfilePanel from "./ProfilePanel";
 import ProjectDetail, { type ProjectDetailHandle } from "./ProjectDetail";
-import { projects } from "@/lib/projects";
-import type { ProjectDeckHandle } from "./ProjectDeck";
 
-const ProjectDeck = dynamic(() => import("./ProjectDeck"), { ssr: false });
-
-export default function Portfolio() {
+function PortfolioShell() {
+  const { accent } = useAccent();
   const [loading, setLoading] = useState(true);
   const [profileOpen, setProfileOpen] = useState(false);
   const [detailIdx, setDetailIdx] = useState<number | null>(null);
   const detailOpen = detailIdx != null;
 
-  const carouselRef = useRef<ProjectDeckHandle>(null);
   const detailRef = useRef<ProjectDetailHandle>(null);
   const cursorRef = useRef<HTMLDivElement | null>(null);
   const cursorDotRef = useRef<HTMLDivElement | null>(null);
+  const orbRef = useRef<HTMLDivElement | null>(null);
   const loadingRef = useRef(true);
   const detailOpenRef = useRef(false);
   const profileOpenRef = useRef(false);
+  const galleryReadyRef = useRef(false);
 
   const anim = useRef({
-    mx: 0, my: 0, cx: 0, cy: 0,
-    cursorSeen: false, cursorHot: false, cursorBreak: false,
-    breakT: undefined as ReturnType<typeof setTimeout> | undefined,
+    mx: 0,
+    my: 0,
+    cx: 0,
+    cy: 0,
+    ox: 0,
+    oy: 0,
+    seen: false,
+    overThumb: false,
+    hot: false,
   }).current;
-
-  const sceneReadyRef = useRef(false);
 
   const onLoaderDone = useCallback(() => {
     loadingRef.current = false;
     setLoading(false);
   }, []);
 
-  const onCarouselReady = useCallback(() => {
-    sceneReadyRef.current = true;
-  }, []);
-
-  useEffect(() => {
-    void import("./ProjectDeck");
-    void import("./ProjectCarousel");
-    void import("./ProjectStack");
+  const onGalleryReady = useCallback(() => {
+    galleryReadyRef.current = true;
   }, []);
 
   const closeOverlays = useCallback(() => {
@@ -87,11 +85,13 @@ export default function Portfolio() {
   };
 
   const applyCursor = () => {
+    const root = cursorRef.current;
     const dot = cursorDotRef.current;
-    if (!dot) return;
-    dot.style.transform = anim.cursorBreak ? "scale(.75)" : anim.cursorHot ? "scale(1.75)" : "scale(1)";
-    dot.style.background = anim.cursorHot ? "rgba(255,255,255,.22)" : "rgba(255,255,255,.12)";
-    dot.style.borderColor = anim.cursorHot ? "#ffffff" : "rgba(255,255,255,.7)";
+    if (!root || !dot) return;
+    root.classList.toggle("is-hot", anim.hot && !anim.overThumb);
+    root.classList.toggle("is-thumb", anim.overThumb);
+    root.style.opacity = anim.seen ? "1" : "0";
+    dot.style.transform = anim.hot && !anim.overThumb ? "scale(1.65)" : "scale(1)";
   };
 
   useEffect(() => {
@@ -99,28 +99,28 @@ export default function Portfolio() {
     anim.my = window.innerHeight / 2;
     anim.cx = anim.mx;
     anim.cy = anim.my;
+    anim.ox = anim.mx;
+    anim.oy = anim.my;
 
     const onMove = (e: PointerEvent) => {
       anim.mx = e.clientX;
       anim.my = e.clientY;
-      anim.cursorSeen = true;
+      anim.seen = true;
     };
     const onOver = (e: PointerEvent) => {
       const t = e.target as Element | null;
-      const hot = !!(t && t.closest && t.closest('a,button,[role="button"],input,select,textarea'));
-      if (hot !== anim.cursorHot) {
-        anim.cursorHot = hot;
+      const overThumb = !!(t && t.closest && t.closest("[data-home-thumb]"));
+      const hot = !!(
+        t &&
+        t.closest &&
+        t.closest('a,button,[role="button"],input,select,textarea')
+      );
+      if (overThumb !== anim.overThumb || hot !== anim.hot) {
+        anim.overThumb = overThumb;
+        anim.hot = hot;
+        orbRef.current?.classList.toggle("is-visible", overThumb);
         applyCursor();
       }
-    };
-    const onDown = () => {
-      anim.cursorBreak = true;
-      applyCursor();
-      clearTimeout(anim.breakT);
-      anim.breakT = setTimeout(() => {
-        anim.cursorBreak = false;
-        applyCursor();
-      }, 210);
     };
 
     const onKey = (e: KeyboardEvent) => {
@@ -133,25 +133,26 @@ export default function Portfolio() {
       if (detailOpenRef.current) {
         if (e.key === "ArrowLeft") detailRef.current?.navigate(-1);
         if (e.key === "ArrowRight") detailRef.current?.navigate(1);
-        return;
       }
-      if (profileOpenRef.current) return;
-      if (e.key === "ArrowLeft") carouselRef.current?.step(-1);
-      if (e.key === "ArrowRight") carouselRef.current?.step(1);
     };
 
     window.addEventListener("pointermove", onMove, { passive: true });
     document.addEventListener("pointerover", onOver, { passive: true });
-    window.addEventListener("pointerdown", onDown, { passive: true });
     document.addEventListener("keydown", onKey);
 
     let raf = 0;
     const tick = () => {
+      // Soft follow — cursor eases, orb lags further behind
+      anim.cx += (anim.mx - anim.cx) * 0.11;
+      anim.cy += (anim.my - anim.cy) * 0.11;
+      anim.ox += (anim.mx - anim.ox) * 0.055;
+      anim.oy += (anim.my - anim.oy) * 0.055;
       if (cursorRef.current) {
-        anim.cx += (anim.mx - anim.cx) * 0.24;
-        anim.cy += (anim.my - anim.cy) * 0.24;
         cursorRef.current.style.transform = `translate3d(${anim.cx}px,${anim.cy}px,0)`;
-        cursorRef.current.style.opacity = anim.cursorSeen ? "1" : "0";
+        if (anim.seen) cursorRef.current.style.opacity = "1";
+      }
+      if (orbRef.current) {
+        orbRef.current.style.transform = `translate3d(${anim.ox}px,${anim.oy}px,0)`;
       }
       raf = requestAnimationFrame(tick);
     };
@@ -160,25 +161,20 @@ export default function Portfolio() {
     return () => {
       window.removeEventListener("pointermove", onMove);
       document.removeEventListener("pointerover", onOver);
-      window.removeEventListener("pointerdown", onDown);
       document.removeEventListener("keydown", onKey);
       cancelAnimationFrame(raf);
-      clearTimeout(anim.breakT);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const overlayUp = profileOpen || detailOpen;
   const n = projects.length;
   const dv = detailIdx == null ? null : projects[detailIdx];
   const prevTitle = projects[((detailIdx ?? 0) - 1 + n) % n].title;
   const nextTitle = projects[((detailIdx ?? 0) + 1) % n].title;
 
   return (
-    <div style={{ minWidth: 0 }}>
-      {loading && <Loader onComplete={onLoaderDone} sceneReadyRef={sceneReadyRef} />}
-
-      <div className={`site-frame${detailOpen ? " is-hidden" : ""}`} aria-hidden="true" />
+    <div className="portfolio-root" style={{ minWidth: 0, ["--accent" as string]: accent }}>
+      {loading && <Loader onComplete={onLoaderDone} sceneReadyRef={galleryReadyRef} />}
 
       <header className={`site-chrome${detailOpen ? " is-hidden" : ""}`}>
         <button className="chrome-logo" onClick={closeOverlays} aria-label="Geordie Ellis">
@@ -194,14 +190,10 @@ export default function Portfolio() {
         </button>
       </header>
 
-      <div className={`deck-inset${profileOpen ? " is-dimmed" : ""}`}>
-        <ProjectDeck
-          ref={carouselRef}
-          projects={projects}
-          paused={overlayUp || loading}
-          onOpen={openDetail}
-          onReady={onCarouselReady}
-        />
+      <div className={`home-inset${profileOpen ? " is-dimmed" : ""}`}>
+        <div className="home-panel">
+          <HomeGallery projects={projects} onOpen={openDetail} onReady={onGalleryReady} />
+        </div>
       </div>
 
       <ProfilePanel open={profileOpen} onClose={closeProfile} />
@@ -215,39 +207,34 @@ export default function Portfolio() {
         nextTitle={nextTitle}
       />
 
-      <div
-        ref={cursorRef}
-        className="glass-cursor"
-        aria-hidden="true"
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          zIndex: 500,
-          width: 26,
-          height: 26,
-          margin: "-13px 0 0 -13px",
-          pointerEvents: "none",
-          willChange: "transform",
-          opacity: 0,
-        }}
-      >
-        <div
-          ref={cursorDotRef}
-          className="cursor-dot"
-          style={{
-            width: "100%",
-            height: "100%",
-            borderRadius: "50%",
-            background: "rgba(255,255,255,.12)",
-            border: "1.5px solid rgba(255,255,255,.7)",
-            WebkitBackdropFilter: "blur(2px) saturate(140%)",
-            backdropFilter: "blur(2px) saturate(140%)",
-            boxShadow: "inset 0 1px 3px rgba(255,255,255,.5),0 2px 8px rgba(9,14,40,.45)",
-            transition: "transform .28s cubic-bezier(.34,1.56,.64,1),background .3s ease,border-color .3s ease",
-          }}
-        />
+      <div ref={cursorRef} className="glass-cursor" aria-hidden="true">
+        <div ref={cursorDotRef} className="cursor-dot" />
+      </div>
+
+      <div ref={orbRef} className="cursor-orb" aria-hidden="true">
+        <span className="cursor-orb-face">
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M7 17L17 7M8 7h9v9" />
+          </svg>
+        </span>
       </div>
     </div>
+  );
+}
+
+export default function Portfolio() {
+  return (
+    <AccentProvider>
+      <PortfolioShell />
+    </AccentProvider>
   );
 }
