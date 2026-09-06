@@ -606,12 +606,11 @@ button {
     flex: 0 0 110px;
     width: 110px;
   }
-  .home-title,
-  .letter-morph.home-title {
-    font-size: clamp(52px, 16vw, 96px);
+  .home-title {
+    font-size: clamp(48px, 12vw, 96px);
     letter-spacing: 0;
-    width: max-content;
-    max-width: 96%;
+    width: 100%;
+    max-width: none;
   }
   .cursor-orb {
     width: 52px;
