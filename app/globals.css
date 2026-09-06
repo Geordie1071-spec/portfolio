@@ -366,10 +366,6 @@ button {
   margin: 0;
   width: max-content;
   max-width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: baseline;
-  gap: 0;
   font-family: "Thunder", sans-serif;
   font-weight: 800;
   font-style: normal;
@@ -377,8 +373,7 @@ button {
   -webkit-font-smoothing: antialiased;
   font-size: clamp(84px, 18vw, 240px);
   line-height: 0.82;
-  /* ExtraBoldLC is condensed — keep tracking tight, not slot-padded */
-  letter-spacing: -0.055em;
+  letter-spacing: -0.1em;
   text-transform: uppercase;
   color: #fff;
   text-align: center;
@@ -388,28 +383,48 @@ button {
   transform-origin: center center;
 }
 .letter-morph {
-  display: flex;
-  justify-content: center;
-  align-items: baseline;
-  flex-wrap: nowrap;
+  display: block;
   width: max-content;
   max-width: 100%;
   margin-inline: auto;
+  white-space: nowrap;
+}
+.letter-morph.is-settled {
+  letter-spacing: -0.1em;
+}
+.letter-solid {
+  display: inline-block;
+  white-space: nowrap;
+}
+/* Morphing path: per-letter slots (letter-spacing won't apply across flex children) */
+.letter-morph.is-morphing {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 0;
+  letter-spacing: 0;
 }
 .letter-slot {
   display: inline-grid;
   position: relative;
   height: 0.84em;
   min-width: 0;
-  overflow: hidden;
+  overflow: visible;
+  clip-path: inset(0 -0.35em);
   vertical-align: bottom;
-  /* Pull slots together to match condensed Thunder metrics */
-  margin-inline: -0.01em;
+  margin: 0;
+}
+.letter-slot + .letter-slot {
+  margin-left: -0.1em;
 }
 .letter-slot.is-space {
   min-width: 0.22em;
   width: 0.22em;
-  margin-inline: 0;
+  margin-left: 0;
+  clip-path: none;
+}
+.letter-slot.is-space + .letter-slot {
+  margin-left: 0;
 }
 .letter-stack {
   display: grid;
@@ -659,9 +674,12 @@ button {
   .home-title,
   .letter-morph.home-title {
     font-size: clamp(64px, 22vw, 120px);
-    letter-spacing: -0.06em;
+    letter-spacing: -0.1em;
     width: max-content;
     max-width: 100%;
+  }
+  .letter-slot + .letter-slot {
+    margin-left: -0.1em;
   }
   .cursor-orb {
     width: 52px;

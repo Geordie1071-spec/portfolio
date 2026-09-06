@@ -46,12 +46,14 @@ export default function LetterMorph({ text, className, style }: LetterMorphProps
   const normalized = text.toUpperCase();
   const [displayText, setDisplayText] = useState(normalized);
   const [slots, setSlots] = useState<Slot[]>(() => buildSlots("", normalized, true));
+  const [morphing, setMorphing] = useState(true);
   const settleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const rootRef = useRef<HTMLSpanElement | null>(null);
   const [fitScale, setFitScale] = useState(1);
 
   if (normalized !== displayText) {
     setDisplayText(normalized);
+    setMorphing(true);
     setSlots(buildSlots(displayText, normalized, true));
   }
 
@@ -60,6 +62,7 @@ export default function LetterMorph({ text, className, style }: LetterMorphProps
     const trailing = Math.max(0, (normalized.length - 1) * STAGGER_MS);
     settleTimer.current = setTimeout(() => {
       setSlots(buildSlots(normalized, normalized, false));
+      setMorphing(false);
     }, MORPH_MS + trailing + 40);
     return () => {
       if (settleTimer.current) clearTimeout(settleTimer.current);
@@ -80,7 +83,6 @@ export default function LetterMorph({ text, className, style }: LetterMorphProps
         setFitScale(1);
         return;
       }
-      // leave a little breathing room so glyphs never kiss the panel edge
       const next = Math.min(1, (available * 0.98) / needed);
       setFitScale(next);
       el.style.setProperty("--fit-scale", String(next));
@@ -91,42 +93,46 @@ export default function LetterMorph({ text, className, style }: LetterMorphProps
     ro.observe(el);
     if (el.parentElement) ro.observe(el.parentElement);
     window.addEventListener("resize", fit);
-    // fonts may load late
     document.fonts?.ready?.then(fit).catch(() => {});
     return () => {
       ro.disconnect();
       window.removeEventListener("resize", fit);
     };
-  }, [normalized, slots]);
+  }, [normalized, slots, morphing]);
 
   return (
     <span
       ref={rootRef}
-      className={`letter-morph${className ? ` ${className}` : ""}`}
+      className={`letter-morph${morphing ? " is-morphing" : " is-settled"}${className ? ` ${className}` : ""}`}
       style={{ ...style, ["--fit-scale" as string]: String(fitScale) }}
       aria-label={normalized}
     >
-      {slots.map((slot, index) => {
-        const isSpace = slot.to === " " && (!slot.morphing || slot.from === " ");
-        return (
-          <span
-            key={slot.key}
-            className={`letter-slot${isSpace ? " is-space" : ""}${slot.morphing ? " is-morphing" : ""}`}
-            style={{ "--delay": `${index * STAGGER_MS}ms` } as CSSProperties}
-          >
-            <span className="letter-stack">
-              {slot.morphing ? (
-                <span className="letter-char letter-from" aria-hidden="true">
-                  {slot.from === " " ? "\u00A0" : slot.from}
+      {/* Settled: one text run so Thunder ExtraBoldLC gets real tracking/kerning */}
+      {!morphing ? (
+        <span className="letter-solid">{normalized}</span>
+      ) : (
+        slots.map((slot, index) => {
+          const isSpace = slot.to === " " && (!slot.morphing || slot.from === " ");
+          return (
+            <span
+              key={slot.key}
+              className={`letter-slot${isSpace ? " is-space" : ""}${slot.morphing ? " is-morphing" : ""}`}
+              style={{ "--delay": `${index * STAGGER_MS}ms` } as CSSProperties}
+            >
+              <span className="letter-stack">
+                {slot.morphing ? (
+                  <span className="letter-char letter-from" aria-hidden="true">
+                    {slot.from === " " ? "\u00A0" : slot.from}
+                  </span>
+                ) : null}
+                <span className="letter-char letter-to">
+                  {slot.to === " " ? "\u00A0" : slot.to}
                 </span>
-              ) : null}
-              <span className="letter-char letter-to">
-                {slot.to === " " ? "\u00A0" : slot.to}
               </span>
             </span>
-          </span>
-        );
-      })}
+          );
+        })
+      )}
     </span>
   );
 }
