@@ -1,51 +1,47 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { AccentProvider, useAccent } from "@/lib/accent";
+import { projects } from "@/lib/projects";
+import HomeGallery from "./HomeGallery";
 import Loader from "./Loader";
 import LogoIcon from "./LogoIcon";
 import ProfilePanel from "./ProfilePanel";
 import ProjectDetail, { type ProjectDetailHandle } from "./ProjectDetail";
-import { projects } from "@/lib/projects";
-import type { ProjectDeckHandle } from "./ProjectDeck";
 
-const ProjectDeck = dynamic(() => import("./ProjectDeck"), { ssr: false });
-
-export default function Portfolio() {
+function PortfolioShell() {
+  const { accent } = useAccent();
   const [loading, setLoading] = useState(true);
   const [profileOpen, setProfileOpen] = useState(false);
   const [detailIdx, setDetailIdx] = useState<number | null>(null);
   const detailOpen = detailIdx != null;
 
-  const carouselRef = useRef<ProjectDeckHandle>(null);
   const detailRef = useRef<ProjectDetailHandle>(null);
   const cursorRef = useRef<HTMLDivElement | null>(null);
   const cursorDotRef = useRef<HTMLDivElement | null>(null);
   const loadingRef = useRef(true);
   const detailOpenRef = useRef(false);
   const profileOpenRef = useRef(false);
+  const galleryReadyRef = useRef(false);
 
   const anim = useRef({
-    mx: 0, my: 0, cx: 0, cy: 0,
-    cursorSeen: false, cursorHot: false, cursorBreak: false,
+    mx: 0,
+    my: 0,
+    cx: 0,
+    cy: 0,
+    cursorSeen: false,
+    cursorHot: false,
+    cursorBreak: false,
     breakT: undefined as ReturnType<typeof setTimeout> | undefined,
   }).current;
-
-  const sceneReadyRef = useRef(false);
 
   const onLoaderDone = useCallback(() => {
     loadingRef.current = false;
     setLoading(false);
   }, []);
 
-  const onCarouselReady = useCallback(() => {
-    sceneReadyRef.current = true;
-  }, []);
-
-  useEffect(() => {
-    void import("./ProjectDeck");
-    void import("./ProjectCarousel");
-    void import("./ProjectStack");
+  const onGalleryReady = useCallback(() => {
+    galleryReadyRef.current = true;
   }, []);
 
   const closeOverlays = useCallback(() => {
@@ -133,11 +129,7 @@ export default function Portfolio() {
       if (detailOpenRef.current) {
         if (e.key === "ArrowLeft") detailRef.current?.navigate(-1);
         if (e.key === "ArrowRight") detailRef.current?.navigate(1);
-        return;
       }
-      if (profileOpenRef.current) return;
-      if (e.key === "ArrowLeft") carouselRef.current?.step(-1);
-      if (e.key === "ArrowRight") carouselRef.current?.step(1);
     };
 
     window.addEventListener("pointermove", onMove, { passive: true });
@@ -168,17 +160,14 @@ export default function Portfolio() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const overlayUp = profileOpen || detailOpen;
   const n = projects.length;
   const dv = detailIdx == null ? null : projects[detailIdx];
   const prevTitle = projects[((detailIdx ?? 0) - 1 + n) % n].title;
   const nextTitle = projects[((detailIdx ?? 0) + 1) % n].title;
 
   return (
-    <div style={{ minWidth: 0 }}>
-      {loading && <Loader onComplete={onLoaderDone} sceneReadyRef={sceneReadyRef} />}
-
-      <div className={`site-frame${detailOpen ? " is-hidden" : ""}`} aria-hidden="true" />
+    <div className="portfolio-root" style={{ minWidth: 0, ["--accent" as string]: accent }}>
+      {loading && <Loader onComplete={onLoaderDone} sceneReadyRef={galleryReadyRef} />}
 
       <header className={`site-chrome${detailOpen ? " is-hidden" : ""}`}>
         <button className="chrome-logo" onClick={closeOverlays} aria-label="Geordie Ellis">
@@ -194,14 +183,8 @@ export default function Portfolio() {
         </button>
       </header>
 
-      <div className={`deck-inset${profileOpen ? " is-dimmed" : ""}`}>
-        <ProjectDeck
-          ref={carouselRef}
-          projects={projects}
-          paused={overlayUp || loading}
-          onOpen={openDetail}
-          onReady={onCarouselReady}
-        />
+      <div className={`home-inset${profileOpen ? " is-dimmed" : ""}`}>
+        <HomeGallery projects={projects} onOpen={openDetail} onReady={onGalleryReady} />
       </div>
 
       <ProfilePanel open={profileOpen} onClose={closeProfile} />
@@ -249,5 +232,13 @@ export default function Portfolio() {
         />
       </div>
     </div>
+  );
+}
+
+export default function Portfolio() {
+  return (
+    <AccentProvider>
+      <PortfolioShell />
+    </AccentProvider>
   );
 }
