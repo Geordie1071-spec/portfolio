@@ -1,139 +1,118 @@
 "use client";
 
-import {
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-  type CSSProperties,
-} from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 
 type LetterMorphProps = {
-  text: string;
+  names: string[];
+  active: string;
   className?: string;
-  style?: CSSProperties;
 };
 
-type Slot = {
-  from: string;
-  to: string;
-  morphing: boolean;
-  key: string;
-};
+type Phase = "on" | "leave" | "wait";
 
-const MORPH_MS = 620;
-const STAGGER_MS = 36;
+const ROLL_MS = 560;
+const STAGGER_MS = 32;
 
-function toChars(value: string, len: number) {
-  const chars = Array.from(value.toUpperCase());
-  while (chars.length < len) chars.push(" ");
-  return chars.slice(0, len);
+function chars(value: string) {
+  return Array.from(value.toUpperCase());
 }
 
-function buildSlots(fromText: string, toText: string, morphing: boolean): Slot[] {
-  const len = Math.max(fromText.length, toText.length, 1);
-  const from = toChars(fromText, len);
-  const to = toChars(toText, len);
-  return to.map((ch, i) => ({
-    from: from[i] ?? " ",
-    to: ch,
-    morphing: morphing && (from[i] ?? " ") !== ch,
-    key: `s${i}`,
-  }));
-}
+export default function LetterMorph({ names, active, className }: LetterMorphProps) {
+  const lines = useMemo(() => {
+    const seen = new Set<string>();
+    const out: string[] = [];
+    for (const name of names) {
+      const key = name.toUpperCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push(key);
+    }
+    return out;
+  }, [names]);
 
-export default function LetterMorph({ text, className, style }: LetterMorphProps) {
-  const normalized = text.toUpperCase();
-  const shownRef = useRef(normalized);
-  const [fromText, setFromText] = useState(normalized);
-  const [toText, setToText] = useState(normalized);
-  const [morphing, setMorphing] = useState(false);
-  const settleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const rootRef = useRef<HTMLSpanElement | null>(null);
-  const [fitScale, setFitScale] = useState(1);
+  const current = active.toUpperCase();
+  const longest = useMemo(
+    () => lines.reduce((best, name) => (name.length > best.length ? name : best), current),
+    [lines, current],
+  );
+
+  const prevRef = useRef(current);
+  const [phase, setPhase] = useState<Record<string, Phase>>(() => {
+    const init: Record<string, Phase> = {};
+    for (const name of lines) init[name] = name === current ? "on" : "wait";
+    return init;
+  });
 
   useEffect(() => {
-    if (normalized === shownRef.current) return;
-
-    const from = shownRef.current;
-    setFromText(from);
-    setToText(normalized);
-    setMorphing(true);
-
-    if (settleTimer.current) clearTimeout(settleTimer.current);
-    const trailing = Math.max(0, (Math.max(from.length, normalized.length) - 1) * STAGGER_MS);
-    settleTimer.current = setTimeout(() => {
-      shownRef.current = normalized;
-      setFromText(normalized);
-      setMorphing(false);
-    }, MORPH_MS + trailing + 50);
-
-    return () => {
-      if (settleTimer.current) clearTimeout(settleTimer.current);
-    };
-  }, [normalized]);
-
-  const slots = buildSlots(fromText, toText, morphing);
-
-  useLayoutEffect(() => {
-    const el = rootRef.current;
-    if (!el) return;
-
-    const fit = () => {
-      el.style.setProperty("--fit-scale", "1");
-      const parent = el.parentElement;
-      if (!parent) return;
-      const available = parent.clientWidth;
-      const needed = el.scrollWidth;
-      if (!available || !needed) {
-        setFitScale(1);
-        return;
+    setPhase((prev) => {
+      const next = { ...prev };
+      for (const name of lines) {
+        if (!(name in next)) next[name] = name === current ? "on" : "wait";
       }
-      const next = Math.min(1, (available * 0.96) / needed);
-      setFitScale(next);
-      el.style.setProperty("--fit-scale", String(next));
-    };
+      return next;
+    });
+  }, [lines, current]);
 
-    fit();
-    const ro = new ResizeObserver(fit);
-    ro.observe(el);
-    if (el.parentElement) ro.observe(el.parentElement);
-    window.addEventListener("resize", fit);
-    document.fonts?.ready?.then(fit).catch(() => {});
+  useEffect(() => {
+    if (current === prevRef.current) return;
+    const outgoing = prevRef.current;
+    prevRef.current = current;
+
+    setPhase((prev) => ({
+      ...prev,
+      [outgoing]: "leave",
+      [current]: "wait",
+    }));
+
+    let enterFrame = 0;
+    const prep = requestAnimationFrame(() => {
+      enterFrame = requestAnimationFrame(() => {
+        setPhase((prev) => ({ ...prev, [current]: "on" }));
+      });
+    });
+
+    const reset = window.setTimeout(
+      () => {
+        setPhase((prev) => ({ ...prev, [outgoing]: "wait" }));
+      },
+      ROLL_MS + outgoing.length * STAGGER_MS + 40,
+    );
+
     return () => {
-      ro.disconnect();
-      window.removeEventListener("resize", fit);
+      cancelAnimationFrame(prep);
+      cancelAnimationFrame(enterFrame);
+      window.clearTimeout(reset);
     };
-  }, [toText, fromText, morphing]);
+  }, [current]);
 
   return (
-    <span
-      ref={rootRef}
-      className={`letter-morph${morphing ? " is-morphing" : " is-settled"}${className ? ` ${className}` : ""}`}
-      style={{ ...style, ["--fit-scale" as string]: String(fitScale) }}
-      aria-label={normalized}
+    <h1
+      className={`home-title${className ? ` ${className}` : ""}`}
+      aria-label={current}
     >
-      {slots.map((slot, index) => {
-        const isSpace = slot.to === " " && slot.from === " ";
+      <span className="home-title-sizer" aria-hidden="true">
+        {longest}
+      </span>
+      {lines.map((name) => {
+        const state = phase[name] ?? (name === current ? "on" : "wait");
         return (
           <span
-            key={slot.key}
-            className={`letter-slot${isSpace ? " is-space" : ""}${slot.morphing ? " is-morphing" : ""}`}
-            style={{ "--delay": `${index * STAGGER_MS}ms` } as CSSProperties}
+            key={name}
+            className={`home-title-line is-${state}`}
+            aria-hidden={name !== current}
           >
-            <span className="letter-stack">
-              {slot.morphing ? (
-                <span className="letter-char letter-from" aria-hidden="true">
-                  {slot.from === " " ? "\u00A0" : slot.from}
-                </span>
-              ) : null}
-              <span className="letter-char letter-to">
-                {slot.to === " " ? "\u00A0" : slot.to}
+            {chars(name).map((ch, index) => (
+              <span
+                key={`${name}-${index}`}
+                className={`letter-slot${ch === " " ? " is-space" : ""}`}
+                style={{ "--i": index } as CSSProperties}
+              >
+                <span className="letter-char">{ch === " " ? "\u00A0" : ch}</span>
               </span>
-            </span>
+            ))}
           </span>
         );
       })}
-    </span>
+    </h1>
   );
 }

@@ -40,6 +40,10 @@ export default function HomeGallery({ projects, onOpen, onReady }: Props) {
   }, [projects]);
 
   const headline = active == null ? DEFAULT_TITLE : thumbs[active]?.title ?? DEFAULT_TITLE;
+  const titles = useMemo(
+    () => [DEFAULT_TITLE, ...thumbs.map((thumb) => thumb.title)],
+    [thumbs],
+  );
 
   useEffect(() => {
     onReady?.();
@@ -80,13 +84,7 @@ export default function HomeGallery({ projects, onOpen, onReady }: Props) {
         })}
       </div>
 
-      <LetterMorph
-        text={headline}
-        className="home-title"
-        style={{
-          fontSize: `clamp(64px, ${Math.min(18, 118 / Math.max(headline.replace(/\s/g, "").length, 1))}vw, 200px)`,
-        }}
-      />
+      <LetterMorph names={titles} active={headline} />
 
       <div className="home-dock">
         <div className={`home-accent${pickerOpen ? " is-open" : ""}`}>

@@ -6,13 +6,15 @@
 }
 
 
-/* Display face: Thunder Extra Bold LC (uploaded Thunder-ExtraBoldLC.ttf) */
+/* Display face: Thunder variable (uploaded Thunder-VF.ttf) */
 @font-face {
   font-family: "Thunder";
   src:
-    url("/fonts/Thunder-ExtraBoldLC.woff2") format("woff2"),
-    url("/fonts/Thunder-ExtraBoldLC.ttf") format("truetype");
-  font-weight: 700 900;
+    url("/fonts/Thunder-VF.woff2") format("woff2-variations"),
+    url("/fonts/Thunder-VF.woff2") format("woff2"),
+    url("/fonts/Thunder-VF.ttf") format("truetype-variations"),
+    url("/fonts/Thunder-VF.ttf") format("truetype");
+  font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }
@@ -350,83 +352,70 @@ button {
   filter: saturate(0.65);
 }
 
-.home-title,
-.letter-morph.home-title {
+.home-title {
   position: absolute;
-  left: 50%;
+  left: 0;
+  right: 0;
   top: 50%;
   margin: 0;
-  width: max-content;
-  max-width: 92%;
+  width: 100%;
+  transform: translateY(-50%);
   font-family: "Thunder", sans-serif;
-  font-weight: 800;
+  font-weight: 400;
   font-style: normal;
+  font-variation-settings: "wght" 400, "CNTR" 0, "ital" 0;
   font-synthesis: none;
   -webkit-font-smoothing: antialiased;
   font-size: clamp(72px, 14vw, 200px);
-  line-height: 0.86;
+  line-height: 0.85;
   letter-spacing: 0;
   text-transform: uppercase;
   color: var(--accent);
   text-align: center;
-  overflow: visible;
+  overflow: hidden;
   user-select: none;
-  transform: translate(-50%, -50%) scale(var(--fit-scale, 1));
-  transform-origin: center center;
+  pointer-events: none;
   transition: color 0.28s ease;
 }
-.letter-morph {
-  display: flex;
-  justify-content: center;
-  align-items: baseline;
-  gap: 0.1em;
-  width: max-content;
-  max-width: 92%;
+.home-title-sizer {
+  visibility: hidden;
+  display: block;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.home-title-line {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  text-align: center;
   white-space: nowrap;
 }
 .letter-slot {
-  display: block;
-  position: relative;
-  height: 0.86em;
-  min-width: 0;
+  display: inline-block;
   overflow: hidden;
+  height: 0.9em;
   vertical-align: bottom;
 }
 .letter-slot.is-space {
-  min-width: 0.32em;
-  width: 0.32em;
-}
-.letter-stack {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  will-change: transform;
+  width: 0.28em;
 }
 .letter-char {
   display: block;
-  height: 0.86em;
-  line-height: 0.86em;
-  text-align: center;
-  font-family: inherit;
-  font-weight: inherit;
-  font-synthesis: none;
+  line-height: 0.9em;
+  will-change: transform;
+  transition: transform 0.56s cubic-bezier(0.77, 0, 0.175, 1);
+  transition-delay: calc(var(--i, 0) * 32ms);
 }
-.letter-from,
-.letter-to {
-  transform: translateY(0);
+.home-title-line.is-on .letter-char {
+  transform: translate3d(0, 0, 0);
 }
-/* SplitText roll — outgoing letter exits up, incoming rises from below */
-.letter-slot.is-morphing .letter-stack {
-  animation: letter-roll 0.62s cubic-bezier(0.77, 0, 0.175, 1) both;
-  animation-delay: var(--delay, 0ms);
+.home-title-line.is-leave .letter-char {
+  transform: translate3d(0, -110%, 0);
 }
-@keyframes letter-roll {
-  from {
-    transform: translate3d(0, 0, 0);
-  }
-  to {
-    transform: translate3d(0, -0.86em, 0);
-  }
+.home-title-line.is-wait .letter-char {
+  transform: translate3d(0, 110%, 0);
+  transition: none;
 }
 
 .home-dock {
