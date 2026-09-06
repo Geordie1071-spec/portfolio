@@ -30,6 +30,8 @@ function PortfolioShell() {
     my: 0,
     cx: 0,
     cy: 0,
+    ox: 0,
+    oy: 0,
     seen: false,
     overThumb: false,
     hot: false,
@@ -97,6 +99,8 @@ function PortfolioShell() {
     anim.my = window.innerHeight / 2;
     anim.cx = anim.mx;
     anim.cy = anim.my;
+    anim.ox = anim.mx;
+    anim.oy = anim.my;
 
     const onMove = (e: PointerEvent) => {
       anim.mx = e.clientX;
@@ -138,12 +142,18 @@ function PortfolioShell() {
 
     let raf = 0;
     const tick = () => {
-      anim.cx += (anim.mx - anim.cx) * 0.3;
-      anim.cy += (anim.my - anim.cy) * 0.3;
-      const transform = `translate3d(${anim.cx}px,${anim.cy}px,0)`;
-      if (cursorRef.current) cursorRef.current.style.transform = transform;
-      if (orbRef.current) orbRef.current.style.transform = transform;
-      if (cursorRef.current && anim.seen) cursorRef.current.style.opacity = "1";
+      // Soft follow — cursor eases, orb lags further behind
+      anim.cx += (anim.mx - anim.cx) * 0.11;
+      anim.cy += (anim.my - anim.cy) * 0.11;
+      anim.ox += (anim.mx - anim.ox) * 0.055;
+      anim.oy += (anim.my - anim.oy) * 0.055;
+      if (cursorRef.current) {
+        cursorRef.current.style.transform = `translate3d(${anim.cx}px,${anim.cy}px,0)`;
+        if (anim.seen) cursorRef.current.style.opacity = "1";
+      }
+      if (orbRef.current) {
+        orbRef.current.style.transform = `translate3d(${anim.ox}px,${anim.oy}px,0)`;
+      }
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);

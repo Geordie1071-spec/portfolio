@@ -58,37 +58,35 @@ export default function HomeGallery({ projects, onOpen, onReady }: Props) {
 
   return (
     <div className="home-gallery">
-      <div className="home-gallery-stage">
-        <div className="home-thumbs" onMouseLeave={() => setActive(null)}>
-          {thumbs.map((thumb, i) => {
-            const hot = active === i;
-            return (
-              <button
-                key={thumb.key}
-                type="button"
-                className={`home-thumb${hot ? " is-hot" : ""}${active != null && !hot ? " is-dim" : ""}`}
-                data-home-thumb=""
-                onMouseEnter={() => setActive(i)}
-                onFocus={() => setActive(i)}
-                onBlur={() => setActive(null)}
-                onClick={() => onOpen(thumb.projectIndex)}
-                aria-label={`Open ${thumb.title}`}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element -- local project frames */}
-                <img src={thumb.src} alt="" draggable={false} />
-              </button>
-            );
-          })}
-        </div>
-
-        <LetterMorph
-          text={headline}
-          className="home-title"
-          style={{
-            fontSize: `clamp(72px, ${Math.min(24, 155 / Math.max(headline.replace(/\s/g, "").length, 1))}vw, 280px)`,
-          }}
-        />
+      <div className="home-thumbs" onMouseLeave={() => setActive(null)}>
+        {thumbs.map((thumb, i) => {
+          const hot = active === i;
+          return (
+            <button
+              key={thumb.key}
+              type="button"
+              className={`home-thumb${hot ? " is-hot" : ""}${active != null && !hot ? " is-dim" : ""}`}
+              data-home-thumb=""
+              onMouseEnter={() => setActive(i)}
+              onFocus={() => setActive(i)}
+              onBlur={() => setActive(null)}
+              onClick={() => onOpen(thumb.projectIndex)}
+              aria-label={`Open ${thumb.title}`}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element -- local project frames */}
+              <img src={thumb.src} alt="" draggable={false} />
+            </button>
+          );
+        })}
       </div>
+
+      <LetterMorph
+        text={headline}
+        className="home-title"
+        style={{
+          fontSize: `clamp(64px, ${Math.min(18, 118 / Math.max(headline.replace(/\s/g, "").length, 1))}vw, 200px)`,
+        }}
+      />
 
       <div className="home-dock">
         <div className={`home-accent${pickerOpen ? " is-open" : ""}`}>

@@ -21,8 +21,8 @@ type Slot = {
   key: string;
 };
 
-const MORPH_MS = 720;
-const STAGGER_MS = 18;
+const MORPH_MS = 620;
+const STAGGER_MS = 36;
 
 function toChars(value: string, len: number) {
   const chars = Array.from(value.toUpperCase());
@@ -38,36 +38,42 @@ function buildSlots(fromText: string, toText: string, morphing: boolean): Slot[]
     from: from[i] ?? " ",
     to: ch,
     morphing: morphing && (from[i] ?? " ") !== ch,
-    key: `${i}-${from[i] ?? " "}-${ch}-${morphing ? "m" : "s"}`,
+    key: `s${i}`,
   }));
 }
 
 export default function LetterMorph({ text, className, style }: LetterMorphProps) {
   const normalized = text.toUpperCase();
-  const [displayText, setDisplayText] = useState(normalized);
-  const [slots, setSlots] = useState<Slot[]>(() => buildSlots("", normalized, true));
-  const [morphing, setMorphing] = useState(true);
+  const shownRef = useRef(normalized);
+  const [fromText, setFromText] = useState(normalized);
+  const [toText, setToText] = useState(normalized);
+  const [morphing, setMorphing] = useState(false);
   const settleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const rootRef = useRef<HTMLSpanElement | null>(null);
   const [fitScale, setFitScale] = useState(1);
 
-  if (normalized !== displayText) {
-    setDisplayText(normalized);
-    setMorphing(true);
-    setSlots(buildSlots(displayText, normalized, true));
-  }
-
   useEffect(() => {
+    if (normalized === shownRef.current) return;
+
+    const from = shownRef.current;
+    setFromText(from);
+    setToText(normalized);
+    setMorphing(true);
+
     if (settleTimer.current) clearTimeout(settleTimer.current);
-    const trailing = Math.max(0, (normalized.length - 1) * STAGGER_MS);
+    const trailing = Math.max(0, (Math.max(from.length, normalized.length) - 1) * STAGGER_MS);
     settleTimer.current = setTimeout(() => {
-      setSlots(buildSlots(normalized, normalized, false));
+      shownRef.current = normalized;
+      setFromText(normalized);
       setMorphing(false);
-    }, MORPH_MS + trailing + 40);
+    }, MORPH_MS + trailing + 50);
+
     return () => {
       if (settleTimer.current) clearTimeout(settleTimer.current);
     };
   }, [normalized]);
+
+  const slots = buildSlots(fromText, toText, morphing);
 
   useLayoutEffect(() => {
     const el = rootRef.current;
@@ -83,7 +89,7 @@ export default function LetterMorph({ text, className, style }: LetterMorphProps
         setFitScale(1);
         return;
       }
-      const next = Math.min(1, (available * 0.98) / needed);
+      const next = Math.min(1, (available * 0.96) / needed);
       setFitScale(next);
       el.style.setProperty("--fit-scale", String(next));
     };
@@ -98,7 +104,7 @@ export default function LetterMorph({ text, className, style }: LetterMorphProps
       ro.disconnect();
       window.removeEventListener("resize", fit);
     };
-  }, [normalized, slots, morphing]);
+  }, [toText, fromText, morphing]);
 
   return (
     <span
@@ -107,32 +113,27 @@ export default function LetterMorph({ text, className, style }: LetterMorphProps
       style={{ ...style, ["--fit-scale" as string]: String(fitScale) }}
       aria-label={normalized}
     >
-      {/* Settled: one text run so Thunder ExtraBoldLC gets real tracking/kerning */}
-      {!morphing ? (
-        <span className="letter-solid">{normalized}</span>
-      ) : (
-        slots.map((slot, index) => {
-          const isSpace = slot.to === " " && (!slot.morphing || slot.from === " ");
-          return (
-            <span
-              key={slot.key}
-              className={`letter-slot${isSpace ? " is-space" : ""}${slot.morphing ? " is-morphing" : ""}`}
-              style={{ "--delay": `${index * STAGGER_MS}ms` } as CSSProperties}
-            >
-              <span className="letter-stack">
-                {slot.morphing ? (
-                  <span className="letter-char letter-from" aria-hidden="true">
-                    {slot.from === " " ? "\u00A0" : slot.from}
-                  </span>
-                ) : null}
-                <span className="letter-char letter-to">
-                  {slot.to === " " ? "\u00A0" : slot.to}
+      {slots.map((slot, index) => {
+        const isSpace = slot.to === " " && slot.from === " ";
+        return (
+          <span
+            key={slot.key}
+            className={`letter-slot${isSpace ? " is-space" : ""}${slot.morphing ? " is-morphing" : ""}`}
+            style={{ "--delay": `${index * STAGGER_MS}ms` } as CSSProperties}
+          >
+            <span className="letter-stack">
+              {slot.morphing ? (
+                <span className="letter-char letter-from" aria-hidden="true">
+                  {slot.from === " " ? "\u00A0" : slot.from}
                 </span>
+              ) : null}
+              <span className="letter-char letter-to">
+                {slot.to === " " ? "\u00A0" : slot.to}
               </span>
             </span>
-          );
-        })
-      )}
+          </span>
+        );
+      })}
     </span>
   );
 }
